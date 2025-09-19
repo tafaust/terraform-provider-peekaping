@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "metadata": {
+        "protocol_versions": [
+            "6.0"
+        ],
+        "provider": {
+            "name": "peekaping",
+            "source": "tafaust/peekaping",
+            "version": "0.0.1"
+        }
+    }
+}

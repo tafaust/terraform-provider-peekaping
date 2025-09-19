@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+
+# Examples
+examples/
+
+# Test files
+*_test.go
+test/
+
+# Build artifacts
+terraform-provider-peekaping*
+*.exe
+*.test
+*.out
+coverage.html
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local dev
+.env
+.terraformrc
+
+# CI/CD
+.github/
+
+# Tools
+tools/
+
+# Other
+*.log
+crash.log
