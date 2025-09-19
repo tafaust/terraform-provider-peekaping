@@ -30,7 +30,7 @@ type MaintenanceResource struct {
 
 func NewMaintenanceResource() resource.Resource { return &MaintenanceResource{} }
 
-// maintenanceTitleValidator validates maintenance title constraints
+// maintenanceTitleValidator validates maintenance title constraints.
 type maintenanceTitleValidator struct{}
 
 func (v maintenanceTitleValidator) Description(_ context.Context) string {
@@ -65,7 +65,7 @@ func (v maintenanceTitleValidator) ValidateString(ctx context.Context, req valid
 	}
 }
 
-// maintenanceStrategyValidator validates maintenance strategy
+// maintenanceStrategyValidator validates maintenance strategy.
 type maintenanceStrategyValidator struct{}
 
 func (v maintenanceStrategyValidator) Description(_ context.Context) string {
@@ -97,7 +97,7 @@ func (v maintenanceStrategyValidator) ValidateString(ctx context.Context, req va
 	)
 }
 
-// maintenanceCronValidator validates cron expression format
+// maintenanceCronValidator validates cron expression format.
 type maintenanceCronValidator struct{}
 
 func (v maintenanceCronValidator) Description(_ context.Context) string {
@@ -130,7 +130,7 @@ func (v maintenanceCronValidator) ValidateString(ctx context.Context, req valida
 	}
 }
 
-// maintenanceTimeValidator validates time format (HH:MM)
+// maintenanceTimeValidator validates time format (HH:MM).
 type maintenanceTimeValidator struct{}
 
 func (v maintenanceTimeValidator) Description(_ context.Context) string {
@@ -163,7 +163,7 @@ func (v maintenanceTimeValidator) ValidateString(ctx context.Context, req valida
 	}
 }
 
-// maintenanceDescriptionValidator validates maintenance description constraints
+// maintenanceDescriptionValidator validates maintenance description constraints.
 type maintenanceDescriptionValidator struct{}
 
 func (v maintenanceDescriptionValidator) Description(_ context.Context) string {
@@ -320,11 +320,19 @@ func (r *MaintenanceResource) Schema(_ context.Context, _ resource.SchemaRequest
 	}
 }
 
-func (r *MaintenanceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *MaintenanceResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	r.client = req.ProviderData.(*peekaping.Client)
+	client, ok := req.ProviderData.(*peekaping.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *peekaping.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+	r.client = client
 }
 
 func (r *MaintenanceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

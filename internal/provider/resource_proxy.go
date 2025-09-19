@@ -29,7 +29,7 @@ type ProxyResource struct {
 
 func NewProxyResource() resource.Resource { return &ProxyResource{} }
 
-// proxyHostValidator validates proxy host format
+// proxyHostValidator validates proxy host format.
 type proxyHostValidator struct{}
 
 func (v proxyHostValidator) Description(_ context.Context) string {
@@ -67,7 +67,7 @@ func (v proxyHostValidator) ValidateString(ctx context.Context, req validator.St
 	}
 }
 
-// proxyPortValidator validates proxy port range
+// proxyPortValidator validates proxy port range.
 type proxyPortValidator struct{}
 
 func (v proxyPortValidator) Description(_ context.Context) string {
@@ -94,7 +94,7 @@ func (v proxyPortValidator) ValidateInt64(ctx context.Context, req validator.Int
 	}
 }
 
-// proxyProtocolValidator validates proxy protocol
+// proxyProtocolValidator validates proxy protocol.
 type proxyProtocolValidator struct{}
 
 func (v proxyProtocolValidator) Description(_ context.Context) string {
@@ -128,7 +128,7 @@ func (v proxyProtocolValidator) ValidateString(ctx context.Context, req validato
 	)
 }
 
-// proxyUsernameValidator validates proxy username constraints
+// proxyUsernameValidator validates proxy username constraints.
 type proxyUsernameValidator struct{}
 
 func (v proxyUsernameValidator) Description(_ context.Context) string {
@@ -163,7 +163,7 @@ func (v proxyUsernameValidator) ValidateString(ctx context.Context, req validato
 	}
 }
 
-// proxyPasswordValidator validates proxy password constraints
+// proxyPasswordValidator validates proxy password constraints.
 type proxyPasswordValidator struct{}
 
 func (v proxyPasswordValidator) Description(_ context.Context) string {
@@ -278,11 +278,19 @@ func (r *ProxyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 	}
 }
 
-func (r *ProxyResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *ProxyResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	r.client = req.ProviderData.(*peekaping.Client)
+	client, ok := req.ProviderData.(*peekaping.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *peekaping.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+	r.client = client
 }
 
 func (r *ProxyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

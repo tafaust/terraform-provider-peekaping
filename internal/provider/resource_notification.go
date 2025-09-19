@@ -30,7 +30,7 @@ type NotificationResource struct {
 
 func NewNotificationResource() resource.Resource { return &NotificationResource{} }
 
-// notificationNameValidator validates notification name constraints
+// notificationNameValidator validates notification name constraints.
 type notificationNameValidator struct{}
 
 func (v notificationNameValidator) Description(_ context.Context) string {
@@ -65,7 +65,7 @@ func (v notificationNameValidator) ValidateString(ctx context.Context, req valid
 	}
 }
 
-// notificationTypeValidator validates notification type
+// notificationTypeValidator validates notification type.
 type notificationTypeValidator struct{}
 
 func (v notificationTypeValidator) Description(_ context.Context) string {
@@ -101,7 +101,7 @@ func (v notificationTypeValidator) ValidateString(ctx context.Context, req valid
 	)
 }
 
-// notificationConfigValidator validates notification configuration JSON
+// notificationConfigValidator validates notification configuration JSON.
 type notificationConfigValidator struct{}
 
 func (v notificationConfigValidator) Description(_ context.Context) string {
@@ -206,11 +206,19 @@ func (r *NotificationResource) Schema(_ context.Context, _ resource.SchemaReques
 	}
 }
 
-func (r *NotificationResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *NotificationResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	r.client = req.ProviderData.(*peekaping.Client)
+	client, ok := req.ProviderData.(*peekaping.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *peekaping.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+	r.client = client
 }
 
 func (r *NotificationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

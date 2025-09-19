@@ -24,7 +24,7 @@ import (
 var _ resource.Resource = &MonitorResource{}
 var _ resource.ResourceWithImportState = &MonitorResource{}
 
-// monitorTypeValidator validates that the monitor type is supported
+// monitorTypeValidator validates that the monitor type is supported.
 type monitorTypeValidator struct{}
 
 func (v monitorTypeValidator) Description(_ context.Context) string {
@@ -60,7 +60,7 @@ func (v monitorTypeValidator) ValidateString(ctx context.Context, req validator.
 	)
 }
 
-// monitorConfigValidator validates monitor configuration based on type
+// monitorConfigValidator validates monitor configuration based on type.
 type monitorConfigValidator struct{}
 
 func (v monitorConfigValidator) Description(_ context.Context) string {
@@ -96,7 +96,7 @@ func (v monitorConfigValidator) ValidateString(ctx context.Context, req validato
 	// which is not available in this validator. The API will perform type-specific validation.
 }
 
-// monitorNameValidator validates monitor name constraints
+// monitorNameValidator validates monitor name constraints.
 type monitorNameValidator struct{}
 
 func (v monitorNameValidator) Description(_ context.Context) string {
@@ -131,7 +131,7 @@ func (v monitorNameValidator) ValidateString(ctx context.Context, req validator.
 	}
 }
 
-// monitorTimeoutValidator validates timeout constraints
+// monitorTimeoutValidator validates timeout constraints.
 type monitorTimeoutValidator struct{}
 
 func (v monitorTimeoutValidator) Description(_ context.Context) string {
@@ -162,7 +162,7 @@ func (v monitorTimeoutValidator) ValidateInt64(ctx context.Context, req validato
 	// This validation is handled by the API.
 }
 
-// monitorIntervalValidator validates interval constraints
+// monitorIntervalValidator validates interval constraints.
 type monitorIntervalValidator struct{}
 
 func (v monitorIntervalValidator) Description(_ context.Context) string {
@@ -189,7 +189,7 @@ func (v monitorIntervalValidator) ValidateInt64(ctx context.Context, req validat
 	}
 }
 
-// monitorRetryIntervalValidator validates retry interval constraints
+// monitorRetryIntervalValidator validates retry interval constraints.
 type monitorRetryIntervalValidator struct{}
 
 func (v monitorRetryIntervalValidator) Description(_ context.Context) string {
@@ -216,7 +216,7 @@ func (v monitorRetryIntervalValidator) ValidateInt64(ctx context.Context, req va
 	}
 }
 
-// monitorMaxRetriesValidator validates max retries constraints
+// monitorMaxRetriesValidator validates max retries constraints.
 type monitorMaxRetriesValidator struct{}
 
 func (v monitorMaxRetriesValidator) Description(_ context.Context) string {
@@ -243,7 +243,7 @@ func (v monitorMaxRetriesValidator) ValidateInt64(ctx context.Context, req valid
 	}
 }
 
-// monitorResendIntervalValidator validates resend interval constraints
+// monitorResendIntervalValidator validates resend interval constraints.
 type monitorResendIntervalValidator struct{}
 
 func (v monitorResendIntervalValidator) Description(_ context.Context) string {
@@ -407,11 +407,19 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 	}
 }
 
-func (r *MonitorResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *MonitorResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	r.client = req.ProviderData.(*peekaping.Client)
+	client, ok := req.ProviderData.(*peekaping.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *peekaping.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+	r.client = client
 }
 
 func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -722,7 +730,7 @@ func setModelFromMonitor(ctx context.Context, m *monitorResourceModel, from *pee
 	// This ensures Terraform state consistency
 }
 
-// setModelFromMonitorWithState handles field mapping with state comparison to resolve API inconsistencies
+// setModelFromMonitorWithState handles field mapping with state comparison to resolve API inconsistencies.
 func setModelFromMonitorWithState(m *monitorResourceModel, from *peekaping.Monitor, currentState *monitorResourceModel) {
 	// Required fields - always present
 	m.ID = types.StringValue(from.ID)

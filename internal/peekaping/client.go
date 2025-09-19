@@ -280,7 +280,7 @@ const (
 	MonitorGRPC MonitorType = "grpc"
 )
 
-// IsValid checks if the monitor type is valid
+// IsValid checks if the monitor type is valid.
 func (mt MonitorType) IsValid() bool {
 	switch mt {
 	case MonitorHTTP, MonitorTCP, MonitorPing, MonitorDNS, MonitorPush, MonitorGRPC:
@@ -299,7 +299,7 @@ const (
 	MonitorStatusMaintenance MonitorStatus = 3
 )
 
-// IsValid checks if the monitor status is valid
+// IsValid checks if the monitor status is valid.
 func (ms MonitorStatus) IsValid() bool {
 	switch ms {
 	case MonitorStatusDown, MonitorStatusUp, MonitorStatusPending, MonitorStatusMaintenance:
@@ -870,7 +870,7 @@ const (
 	ProxySOCKS5H ProxyProtocol = "socks5h"
 )
 
-// IsValid checks if the proxy protocol is valid
+// IsValid checks if the proxy protocol is valid.
 func (pp ProxyProtocol) IsValid() bool {
 	switch pp {
 	case ProxyHTTP, ProxyHTTPS, ProxySOCKS, ProxySOCKS4, ProxySOCKS5, ProxySOCKS5H:

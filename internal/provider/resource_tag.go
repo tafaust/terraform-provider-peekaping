@@ -5,6 +5,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -27,7 +28,7 @@ type TagResource struct {
 
 func NewTagResource() resource.Resource { return &TagResource{} }
 
-// tagNameValidator validates tag name constraints
+// tagNameValidator validates tag name constraints.
 type tagNameValidator struct{}
 
 func (v tagNameValidator) Description(_ context.Context) string {
@@ -62,7 +63,7 @@ func (v tagNameValidator) ValidateString(ctx context.Context, req validator.Stri
 	}
 }
 
-// tagColorValidator validates tag color hex format
+// tagColorValidator validates tag color hex format.
 type tagColorValidator struct{}
 
 func (v tagColorValidator) Description(_ context.Context) string {
@@ -95,7 +96,7 @@ func (v tagColorValidator) ValidateString(ctx context.Context, req validator.Str
 	}
 }
 
-// tagDescriptionValidator validates tag description constraints
+// tagDescriptionValidator validates tag description constraints.
 type tagDescriptionValidator struct{}
 
 func (v tagDescriptionValidator) Description(_ context.Context) string {
@@ -180,11 +181,19 @@ func (r *TagResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *
 	}
 }
 
-func (r *TagResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *TagResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	r.client = req.ProviderData.(*peekaping.Client)
+	client, ok := req.ProviderData.(*peekaping.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *peekaping.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+	r.client = client
 }
 
 func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -329,7 +338,7 @@ func setModelFromTag(m *tagResourceModel, from *peekaping.Tag) {
 	}
 }
 
-// setModelFromTagWithState handles field mapping with state comparison to resolve API inconsistencies
+// setModelFromTagWithState handles field mapping with state comparison to resolve API inconsistencies.
 func setModelFromTagWithState(m *tagResourceModel, from *peekaping.Tag, currentState *tagResourceModel) {
 	// Required fields - always present
 	m.ID = types.StringValue(from.ID)

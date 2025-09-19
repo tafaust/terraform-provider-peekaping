@@ -26,7 +26,7 @@ import (
 var _ resource.Resource = &StatusPageResource{}
 var _ resource.ResourceWithImportState = &StatusPageResource{}
 
-// normalizeMonitorIDsPlanModifier uses API's order from state for updates
+// normalizeMonitorIDsPlanModifier uses API's order from state for updates.
 type normalizeMonitorIDsPlanModifier struct{}
 
 func (m normalizeMonitorIDsPlanModifier) Description(_ context.Context) string {
@@ -110,7 +110,7 @@ func (m normalizeMonitorIDsPlanModifier) PlanModifyList(ctx context.Context, req
 	// Don't modify the plan - let user order be preserved
 }
 
-// statusPageTitleValidator validates status page title constraints
+// statusPageTitleValidator validates status page title constraints.
 type statusPageTitleValidator struct{}
 
 func (v statusPageTitleValidator) Description(_ context.Context) string {
@@ -145,7 +145,7 @@ func (v statusPageTitleValidator) ValidateString(ctx context.Context, req valida
 	}
 }
 
-// statusPageSlugValidator validates status page slug format
+// statusPageSlugValidator validates status page slug format.
 type statusPageSlugValidator struct{}
 
 func (v statusPageSlugValidator) Description(_ context.Context) string {
@@ -188,7 +188,7 @@ func (v statusPageSlugValidator) ValidateString(ctx context.Context, req validat
 	}
 }
 
-// statusPageThemeValidator validates status page theme
+// statusPageThemeValidator validates status page theme.
 type statusPageThemeValidator struct{}
 
 func (v statusPageThemeValidator) Description(_ context.Context) string {
@@ -223,7 +223,7 @@ func (v statusPageThemeValidator) ValidateString(ctx context.Context, req valida
 	)
 }
 
-// statusPageDescriptionValidator validates status page description constraints
+// statusPageDescriptionValidator validates status page description constraints.
 type statusPageDescriptionValidator struct{}
 
 func (v statusPageDescriptionValidator) Description(_ context.Context) string {
@@ -250,7 +250,7 @@ func (v statusPageDescriptionValidator) ValidateString(ctx context.Context, req 
 	}
 }
 
-// statusPageFooterTextValidator validates status page footer text constraints
+// statusPageFooterTextValidator validates status page footer text constraints.
 type statusPageFooterTextValidator struct{}
 
 func (v statusPageFooterTextValidator) Description(_ context.Context) string {
@@ -448,11 +448,19 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 	}
 }
 
-func (r *StatusPageResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *StatusPageResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	r.client = req.ProviderData.(*peekaping.Client)
+	client, ok := req.ProviderData.(*peekaping.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *peekaping.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+	r.client = client
 }
 
 func (r *StatusPageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -672,7 +680,7 @@ func setModelFromStatusPageWithState(m *statusPageResourceModel, from *peekaping
 	}
 }
 
-// Helper function to convert Terraform list to string slice
+// Helper function to convert Terraform list to string slice.
 func toStrSliceFromList(list types.List) []string {
 	if list.IsNull() || list.IsUnknown() {
 		return nil
@@ -687,7 +695,7 @@ func toStrSliceFromList(list types.List) []string {
 	return result
 }
 
-// Helper function to convert []types.String to string slice
+// Helper function to convert []types.String to string slice.
 func toStrSliceFromStringSlice(strSlice []types.String) []string {
 	if strSlice == nil {
 		return nil
