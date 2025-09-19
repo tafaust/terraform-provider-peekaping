@@ -92,12 +92,14 @@ docs: asdf-install
 	@echo "==> Generating documentation..."
 	@tfplugindocs generate
 
-# Ensure asdf tools are installed
+# Ensure asdf tools are installed (optional in CI)
 .PHONY: asdf-install
 asdf-install:
 	@echo "==> Installing asdf tools..."
 	@if command -v asdf >/dev/null 2>&1; then \
 		asdf install; \
+	elif [ -n "$$CI" ]; then \
+		echo "asdf not found in CI environment, skipping..."; \
 	else \
 		echo "asdf not found. Please install asdf first: https://asdf-vm.com/"; \
 		exit 1; \
