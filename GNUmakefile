@@ -49,6 +49,12 @@ test: asdf-install
 	@echo "==> Running tests..."
 	@go test -v ./...
 
+# Run tests without asdf (for CI)
+.PHONY: test-ci
+test-ci:
+	@echo "==> Running tests (CI mode)..."
+	@go test -v ./...
+
 # Run acceptance tests
 .PHONY: testacc
 testacc: asdf-install
