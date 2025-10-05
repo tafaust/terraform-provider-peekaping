@@ -1,3 +1,9 @@
+---
+page_title: "Resources"
+description: |-
+  This page documents all the resources supported by the Peekaping Terraform provider.
+---
+
 # Resources
 
 This page documents all the resources supported by the Peekaping Terraform provider.

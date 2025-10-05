@@ -1,3 +1,9 @@
+---
+page_title: "Data Sources"
+description: |-
+  This page documents all the data sources supported by the Peekaping Terraform provider.
+---
+
 # Data Sources
 
 ## peekaping_monitor
