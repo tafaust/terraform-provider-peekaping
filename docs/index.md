@@ -2,7 +2,7 @@
 
 The Peekaping Terraform provider allows you to manage monitoring infrastructure using Terraform. This provider supports comprehensive monitoring capabilities including HTTP, TCP, Ping, DNS, and other monitor types, along with notification management, resource organization, proxy support, maintenance windows, and status pages.
 
-~> **⚠️ AI Generated Disclaimer**: This Terraform provider was generated using AI assistance. While it has been tested and validated, please review the code thoroughly before using in production environments. The provider may require manual adjustments and ongoing maintenance.
+~> **AI Generated Disclaimer** This Terraform provider was generated using AI assistance. While it has been tested and validated, please review the code thoroughly before using in production environments. The provider may require manual adjustments and ongoing maintenance.
 
 ## Features
 
