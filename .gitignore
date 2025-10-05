@@ -36,3 +36,8 @@ Thumbs.db
 # Local dev
 .env
 .terraformrc
+
+.trunk
+.specstory
+.cursor
+.cursorindexingignore
