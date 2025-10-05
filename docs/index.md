@@ -1,14 +1,8 @@
----
-page_title: "Peekaping Provider"
-description: |-
-  The Peekaping Terraform provider allows you to manage monitoring infrastructure using Terraform.
----
+# Peekaping Provider
 
-# Peekaping Terraform Provider
+The Peekaping Terraform provider allows you to manage monitoring infrastructure using Terraform. This provider supports comprehensive monitoring capabilities including HTTP, TCP, Ping, DNS, and other monitor types, along with notification management, resource organization, proxy support, maintenance windows, and status pages.
 
-The Peekaping Terraform provider allows you to manage monitoring infrastructure using Terraform.
-
-> **⚠️ AI Generated Disclaimer**: This Terraform provider was generated using AI assistance. While it has been tested and validated, please review the code thoroughly before using in production environments. The provider may require manual adjustments and ongoing maintenance.
+~> **⚠️ AI Generated Disclaimer**: This Terraform provider was generated using AI assistance. While it has been tested and validated, please review the code thoroughly before using in production environments. The provider may require manual adjustments and ongoing maintenance.
 
 ## Features
 
@@ -29,7 +23,7 @@ terraform {
   required_providers {
     peekaping = {
       source  = "tafaust/peekaping"
-      version = "~> 0.0.1"
+      version = "~> 0.0.3"
     }
   }
 }

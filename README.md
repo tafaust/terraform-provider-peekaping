@@ -305,7 +305,7 @@ For issues and questions:
 - [x] Add data sources for all resources
 - [x] Improve error handling and validation
 - [x] Add comprehensive examples
-- [ ] Add more comprehensive tests
-- [ ] Publish to Terraform Registry
-- [ ] Add support for additional monitor types
-- [ ] Add support for custom authentication methods
+- [x] Add more comprehensive tests
+- [x] Publish to Terraform Registry
+- [x] Add support for additional monitor types
+- [ ] Add support for API Key authentication methods ([PR pending](https://github.com/0xfurai/peekaping/pull/204))
