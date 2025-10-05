@@ -1,3 +1,9 @@
+---
+page_title: "Provider: Peekaping"
+description: |-
+  The Peekaping provider is used to interact with the Peekaping monitoring API.
+---
+
 # Provider Configuration
 
 The Peekaping provider is used to interact with the Peekaping monitoring API. The provider needs to be configured with the proper credentials before it can be used.
