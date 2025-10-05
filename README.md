@@ -2,7 +2,9 @@
 
 A comprehensive Terraform provider for managing Peekaping monitoring resources.
 
-**Version: 0.0.1**
+Terraform provider version: **0.0.3**
+
+Tested with Peekaping version: **0.0.39**
 
 > **⚠️ AI Generated Disclaimer**: This Terraform provider was generated using AI assistance. While it has been tested and validated, please review the code thoroughly before using in production environments. The provider may require manual adjustments and ongoing maintenance.
 
