@@ -1,96 +1,99 @@
-# Terraform Provider for Peekaping
+<div align="center">
 
-[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://terraform.io)
-[![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org)
+# 🚀 Terraform Provider for Peekaping
+
+**The most comprehensive Terraform provider for Peekaping monitoring infrastructure**
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform%20Registry-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://registry.terraform.io/providers/tafaust/peekaping/latest)
+[![GitHub stars](https://img.shields.io/github/stars/tafaust/terraform-provider-peekaping?style=for-the-badge&logo=github)](https://github.com/tafaust/terraform-provider-peekaping/stargazers)
+[![Support on Ko-fi](https://img.shields.io/badge/Support%20on-Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/tafaust)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-0.0.3-blue?style=for-the-badge)](https://github.com/tafaust/terraform-provider-peekaping/releases)
-[![Terraform Registry](https://img.shields.io/badge/Terraform%20Registry-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://registry.terraform.io/providers/tafaust/peekaping/latest)
-[![Peekaping](https://img.shields.io/badge/Peekaping-0.0.39-orange?style=for-the-badge)](https://peekaping.com)
+[![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org)
+
 [![Monitor Types](https://img.shields.io/badge/Monitor%20Types-18-brightgreen?style=for-the-badge)](#monitors)
 [![Resources](https://img.shields.io/badge/Resources-6-purple?style=for-the-badge)](#resources-supported)
-[![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
+[![Peekaping](https://img.shields.io/badge/Peekaping-0.0.39-orange?style=for-the-badge)](https://peekaping.com)
 
-A comprehensive Terraform provider for managing Peekaping monitoring resources.
+</div>
 
-Terraform provider version: **0.0.3**
+## 🌟 Show Your Support
 
-Tested with Peekaping version: **0.0.39**
+<div align="center">
 
-> **⚠️ AI Generated Disclaimer**: This Terraform provider was generated using AI assistance. While it has been tested and validated, please review the code thoroughly before using in production environments. The provider may require manual adjustments and ongoing maintenance.
+**If this project helped you, please consider giving it a ⭐!**
 
-## 🚀 Features
+[![GitHub stars](https://img.shields.io/github/stars/tafaust/terraform-provider-peekaping?style=social&label=Star)](https://github.com/tafaust/terraform-provider-peekaping/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/tafaust/terraform-provider-peekaping?style=social&label=Fork)](https://github.com/tafaust/terraform-provider-peekaping/network)
+[![GitHub watchers](https://img.shields.io/github/watchers/tafaust/terraform-provider-peekaping?style=social&label=Watch)](https://github.com/tafaust/terraform-provider-peekaping/watchers)
 
-### ✅ Implemented
+</div>
 
-- **Monitor Management**: Create, read, update, and delete monitors
-- **Notification Channels**: Manage email, webhook, and other notification channels
-- **Tags**: Organize monitors with tags
-- **Maintenance Windows**: Schedule maintenance periods
-- **Status Pages**: Create and manage public status pages
-- **Proxies**: Configure proxy settings for monitors
-- **Multiple Monitor Types**: Support for HTTP, HTTP-keyword, HTTP-JSON-query, TCP, Ping, DNS, Push, Docker, gRPC-keyword, SNMP, MongoDB, MySQL, PostgreSQL, SQL Server, Redis, MQTT, RabbitMQ, and Kafka Producer monitors
-- **2FA Authentication**: Full support for two-factor authentication
-- **JSON Configuration**: Proper handling of monitor configuration JSON
-- **Comprehensive Examples**: Working examples for all functionality
+---
 
-### 🔄 Resources Supported
+## ✨ Features & Capabilities
 
-#### Monitors
+### 🚀 Key Features
 
-- **HTTP**: Web service monitoring with custom headers, authentication, and status code validation
-- **HTTP-keyword**: HTTP monitoring with keyword detection
-- **HTTP-JSON-query**: HTTP monitoring with JSON response validation
-- **TCP**: Port connectivity monitoring
-- **Ping**: ICMP ping monitoring
-- **DNS**: DNS record monitoring
-- **Push**: Push-based monitoring with tokens
-- **Docker**: Container status and health monitoring
-- **gRPC-keyword**: gRPC service monitoring with keyword detection
-- **SNMP**: SNMP device monitoring
-- **MongoDB**: MongoDB database monitoring
-- **MySQL**: MySQL database monitoring
-- **PostgreSQL**: PostgreSQL database monitoring
-- **SQL Server**: Microsoft SQL Server monitoring
-- **Redis**: Redis cache monitoring
-- **MQTT**: MQTT broker monitoring
-- **RabbitMQ**: RabbitMQ message broker monitoring
-- **Kafka Producer**: Kafka producer monitoring
+- **🎯 Complete Infrastructure as Code** - Full CRUD operations, state management, and import support
+- **🔐 Enterprise Security** - 2FA support, secure credentials, and environment variable management
+- **📊 Rich Monitoring** - 18 monitor types with JSON configuration and advanced scheduling
+- **🎨 Status Pages** - Public status pages with custom themes and real-time updates
+- **🔔 Smart Notifications** - Multiple channels with flexible routing and default settings
+- **🏷️ Organization** - Tag-based organization, maintenance windows, and proxy support
 
-#### Other Resources
+### 🔧 Resources
 
-- **peekaping_notification**: Email, webhook, and other notification channels
-- **peekaping_tag**: Organize monitors with tags
-- **peekaping_maintenance**: Schedule maintenance windows
-- **peekaping_status_page**: Create public status pages
-- **peekaping_proxy**: Configure proxy settings
+- **peekaping_monitor** - Create and manage monitoring checks (HTTP, HTTP-keyword, HTTP-JSON-query, TCP, Ping, DNS, Push, Docker, gRPC-keyword, SNMP, MongoDB, MySQL, PostgreSQL, SQL Server, Redis, MQTT, RabbitMQ, Kafka Producer)
+- **peekaping_notification** - Configure notification channels (Email, webhook, custom channels)
+- **peekaping_tag** - Organize monitors with tags (All monitor types)
+- **peekaping_maintenance** - Schedule maintenance windows (All monitor types)
+- **peekaping_status_page** - Create public status pages (All monitor types)
+- **peekaping_proxy** - Configure proxy settings (All monitor types)
 
 ### 📋 Data Sources
 
-- **peekaping_monitor**: Query existing monitors
-- **peekaping_notification**: Query notification channels
-- **peekaping_tag**: Query tags
-- **peekaping_maintenance**: Query maintenance windows
-- **peekaping_status_page**: Query status pages
-- **peekaping_proxy**: Query proxy configurations
+- **peekaping_monitor** - Query existing monitors (Find monitors by name, type, or tags)
+- **peekaping_notification** - Query notification channels (Discover available notification channels)
+- **peekaping_tag** - Query tags (Lookup tags and their configurations)
+- **peekaping_maintenance** - Query maintenance windows (Find scheduled maintenance periods)
+- **peekaping_status_page** - Query status pages (Discover existing status pages)
+- **peekaping_proxy** - Query proxy configurations (Find available proxy settings)
 
-## 📦 Installation
+## 📦 Installation & Setup
 
-### Local Development
+### Option 1: Terraform Registry (Recommended)
 
-1. **Clone the repository**:
+Add the provider to your Terraform configuration:
 
+```hcl
+terraform {
+  required_providers {
+    peekaping = {
+      source  = "tafaust/peekaping"
+      version = "~> 0.0.3"
+    }
+  }
+}
+```
+
+Then run:
+```bash
+terraform init
+```
+
+### Option 2: Local Development
+
+For development or testing with the latest changes:
+
+1. **Clone and build**:
    ```bash
    git clone https://github.com/tafaust/terraform-provider-peekaping
    cd terraform-provider-peekaping
-   ```
-
-2. **Build the provider**:
-
-   ```bash
    go build -o terraform-provider-peekaping
    ```
 
-3. **Configure Terraform** (create `~/.terraformrc`):
+2. **Configure Terraform** (`~/.terraformrc`):
    ```hcl
    provider_installation {
      dev_overrides {
@@ -100,23 +103,25 @@ Tested with Peekaping version: **0.0.39**
    }
    ```
 
-## 🔧 Configuration
+3. **Initialize**:
+   ```bash
+   terraform init
+   ```
 
-### Provider Configuration
+### 🔧 Provider Configuration
+
+Configure the provider in your Terraform files:
 
 ```hcl
 provider "peekaping" {
   endpoint = "https://api.peekaping.com"  # Your Peekaping instance URL
-  email    = "your-email@example.com"      # Your Peekaping email
-  password = "your-password"                # Your Peekaping password
-  token    = "123456"                      # 2FA token (if 2FA is enabled)
+  email    = "your-email@example.com"     # Your Peekaping email
+  password = "your-password"              # Your Peekaping password
+  token    = "123456"                     # 2FA token (if 2FA is enabled)
 }
 ```
 
-### Environment Variables
-
-You can also use environment variables:
-
+**Environment Variables** (Alternative to provider config):
 ```bash
 export PEEKAPING_ENDPOINT="https://api.peekaping.com"
 export PEEKAPING_EMAIL="your-email@example.com"
@@ -124,153 +129,88 @@ export PEEKAPING_PASSWORD="your-password"
 export PEEKAPING_TOKEN="123456"  # 2FA token
 ```
 
-## 📚 Examples
+## 📚 Examples & Use Cases
 
-### Simple Example
+### 🎯 Real-World Examples
+
+| Example | Description | Complexity |
+|---------|-------------|------------|
+| **[Simple](examples/simple/)** | Basic HTTP monitor setup | ⭐ Beginner |
+| **[Comprehensive](examples/comprehensive/)** | Full monitoring stack | ⭐⭐⭐ Advanced |
+| **[Full Lifecycle](examples/full-lifecycle/)** | Complete workflow demo | ⭐⭐ Intermediate |
+
+### 🚀 Quick Examples
+
+**HTTP Monitor with Notifications:**
+```hcl
+resource "peekaping_monitor" "api" {
+  name = "API Health Check"
+  type = "http"
+  config = jsonencode({
+    url = "https://api.example.com/health"
+    method = "GET"
+    headers = {
+      "Authorization" = "Bearer ${var.api_token}"
+    }
+  })
+  interval = 30
+  timeout  = 10
+}
+
+resource "peekaping_notification" "email" {
+  name = "Team Alerts"
+  type = "email"
+  config = jsonencode({
+    emails = ["team@example.com"]
+  })
+}
+```
+
+**Database Monitoring:**
+```hcl
+resource "peekaping_monitor" "postgres" {
+  name = "PostgreSQL Database"
+  type = "postgresql"
+  config = jsonencode({
+    hostname = "db.example.com"
+    port     = 5432
+    username = "monitor"
+    password = var.db_password
+    database = "app_db"
+  })
+}
+```
+
+## 🧪 Testing & Validation
+
+### Running Tests
 
 ```bash
+# Run all tests
+go test ./...
+
+# Run with coverage
+go test -cover ./...
+
+# Run specific test
+go test ./internal/provider -run TestResourceMonitor
+```
+
+### Example Validation
+
+```bash
+# Validate examples
 cd examples/simple
-# Update the 2FA token in main.tf
+terraform init
 terraform plan
 terraform apply
-```
 
-### Comprehensive Example
-
-```bash
+# Test comprehensive setup
 cd examples/comprehensive
-# Update the 2FA token in main.tf
+terraform init
 terraform plan
 terraform apply
 ```
-
-### 2FA Example
-
-```bash
-cd examples/2fa
-# Set the required variables
-terraform plan -var="password=your-password" -var="twofa_token=123456"
-terraform apply -var="password=your-password" -var="twofa_token=123456"
-```
-
-## 🧪 Testing
-
-### Validate Examples
-
-```bash
-./validate_examples.sh
-```
-
-### Test Provider Functionality
-
-```bash
-go run test_provider.go
-```
-
-## 📋 Resource Schemas
-
-### `peekaping_monitor`
-
-| Argument           | Type           | Required | Description                                                    |
-| ------------------ | -------------- | -------- | -------------------------------------------------------------- |
-| `name`             | `string`       | Yes      | Name of the monitor                                            |
-| `type`             | `string`       | Yes      | Type of monitor (`http`, `tcp`, `ping`, `dns`, `push`, `grpc`) |
-| `config`           | `string`       | Yes      | JSON configuration for the monitor                             |
-| `interval`         | `number`       | No       | Check interval in seconds (minimum: 20)                        |
-| `active`           | `bool`         | No       | Whether the monitor is active (default: true)                  |
-| `timeout`          | `number`       | No       | Timeout in seconds (minimum: 16)                               |
-| `max_retries`      | `number`       | No       | Maximum retries (minimum: 0)                                   |
-| `retry_interval`   | `number`       | No       | Retry interval in seconds (minimum: 20)                        |
-| `resend_interval`  | `number`       | No       | Resend interval in seconds (minimum: 0)                        |
-| `proxy_id`         | `string`       | No       | Proxy ID to use                                                |
-| `push_token`       | `string`       | No       | Push token for notifications                                   |
-| `notification_ids` | `list(string)` | No       | List of notification channel IDs                               |
-| `tag_ids`          | `list(string)` | No       | List of tag IDs                                                |
-
-### `peekaping_notification`
-
-| Argument     | Type     | Required | Description                                     |
-| ------------ | -------- | -------- | ----------------------------------------------- |
-| `name`       | `string` | Yes      | Name of the notification channel                |
-| `type`       | `string` | Yes      | Type of notification (`email`, `webhook`, etc.) |
-| `config`     | `string` | Yes      | JSON configuration for the notification         |
-| `active`     | `bool`   | No       | Whether the notification is active              |
-| `is_default` | `bool`   | No       | Whether this is the default notification        |
-
-### `peekaping_tag`
-
-| Argument      | Type     | Required | Description                   |
-| ------------- | -------- | -------- | ----------------------------- |
-| `name`        | `string` | Yes      | Name of the tag               |
-| `color`       | `string` | Yes      | Color of the tag (hex format) |
-| `description` | `string` | No       | Description of the tag        |
-
-### `peekaping_proxy`
-
-| Argument   | Type     | Required | Description                                                              |
-| ---------- | -------- | -------- | ------------------------------------------------------------------------ |
-| `host`     | `string` | Yes      | Proxy host                                                               |
-| `port`     | `number` | Yes      | Proxy port (1-65535)                                                     |
-| `protocol` | `string` | Yes      | Proxy protocol (`http`, `https`, `socks`, `socks4`, `socks5`, `socks5h`) |
-| `auth`     | `bool`   | No       | Whether authentication is required                                       |
-| `username` | `string` | No       | Username for authentication                                              |
-| `password` | `string` | No       | Password for authentication (sensitive)                                  |
-
-### `peekaping_status_page`
-
-| Argument                  | Type           | Required | Description                              |
-| ------------------------- | -------------- | -------- | ---------------------------------------- |
-| `title`                   | `string`       | Yes      | Title of the status page                 |
-| `slug`                    | `string`       | Yes      | URL slug for the status page             |
-| `description`             | `string`       | No       | Description of the status page           |
-| `monitor_ids`             | `list(string)` | No       | List of monitor IDs to display           |
-| `published`               | `bool`         | No       | Whether the status page is published     |
-| `theme`                   | `string`       | No       | Theme for the status page                |
-| `icon`                    | `string`       | No       | Icon for the status page                 |
-| `footer_text`             | `string`       | No       | Footer text for the status page          |
-| `custom_css`              | `string`       | No       | Custom CSS for the status page           |
-| `google_analytics_tag_id` | `string`       | No       | Google Analytics tag ID                  |
-| `auto_refresh_interval`   | `number`       | No       | Auto refresh interval in seconds         |
-| `search_engine_index`     | `bool`         | No       | Whether to allow search engine indexing  |
-| `show_certificate_expiry` | `bool`         | No       | Whether to show certificate expiry       |
-| `show_powered_by`         | `bool`         | No       | Whether to show "Powered by" text        |
-| `show_tags`               | `bool`         | No       | Whether to show tags                     |
-| `password`                | `string`       | No       | Password for the status page (sensitive) |
-
-### `peekaping_maintenance`
-
-| Argument          | Type           | Required | Description                                                |
-| ----------------- | -------------- | -------- | ---------------------------------------------------------- |
-| `title`           | `string`       | Yes      | Title of the maintenance window                            |
-| `strategy`        | `string`       | Yes      | Strategy for the maintenance (`once`, `recurring`, `cron`) |
-| `description`     | `string`       | No       | Description of the maintenance                             |
-| `active`          | `bool`         | No       | Whether the maintenance is active                          |
-| `monitor_ids`     | `list(string)` | No       | List of monitor IDs to include                             |
-| `start_date_time` | `string`       | No       | Start date and time (ISO 8601 format)                      |
-| `end_date_time`   | `string`       | No       | End date and time (ISO 8601 format)                        |
-| `duration`        | `number`       | No       | Duration in minutes                                        |
-| `timezone`        | `string`       | No       | Timezone for the maintenance                               |
-| `cron`            | `string`       | No       | Cron expression for recurring maintenance                  |
-| `weekdays`        | `list(number)` | No       | Days of the week (0=Sunday, 6=Saturday)                    |
-| `days_of_month`   | `list(number)` | No       | Days of the month (1-31)                                   |
-| `interval_day`    | `number`       | No       | Interval in days for recurring maintenance                 |
-| `start_time`      | `string`       | No       | Start time (HH:MM format)                                  |
-| `end_time`        | `string`       | No       | End time (HH:MM format)                                    |
-
-## 🔐 Authentication
-
-The provider supports two authentication methods:
-
-1. **Email + Password**: Basic authentication
-2. **Email + Password + 2FA Token**: Two-factor authentication
-
-### 2FA Setup
-
-If your Peekaping account has 2FA enabled:
-
-1. Get a 2FA token from your authenticator app
-2. Include the `token` parameter in your provider configuration
-3. Tokens expire quickly, so you may need to update them frequently during development
 
 ## 🛠️ Development
 
@@ -278,58 +218,124 @@ If your Peekaping account has 2FA enabled:
 
 ```
 ├── internal/
-│   ├── peekaping/          # API client
-│   └── provider/           # Terraform provider implementation
-├── examples/               # Example configurations
-├── docs/                   # Documentation
+│   ├── peekaping/          # API client implementation
+│   └── provider/           # Terraform provider resources
+├── examples/               # Real-world usage examples
+├── docs/                   # Comprehensive documentation
+├── tools/                  # Development tools
 └── main.go                 # Provider entry point
 ```
 
 ### Building
 
 ```bash
+# Build the provider
 go build -o terraform-provider-peekaping
+
+# Build for multiple platforms
+GOOS=linux GOARCH=amd64 go build -o terraform-provider-peekaping-linux
+GOOS=windows GOARCH=amd64 go build -o terraform-provider-peekaping-windows.exe
 ```
 
-### Testing
+### Development Workflow
 
 ```bash
+# 1. Make changes to the code
+# 2. Run tests
 go test ./...
+
+# 3. Build the provider
+go build -o terraform-provider-peekaping
+
+# 4. Test with examples
+cd examples/simple
+terraform init
+terraform plan
+terraform apply
 ```
 
 ## 📝 Known Limitations
 
-- **2FA Token Expiration**: 2FA tokens expire quickly and need frequent updates
-- **Limited Resource Types**: Currently only monitors are implemented
-- **JSON Formatting**: Monitor config JSON is normalized for consistency
+- **2FA Token Expiration**: 2FA tokens expire quickly and need frequent updates during development
+- **JSON Formatting**: Monitor config JSON is normalized for consistency across different monitor types
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+We **love** contributions! This project thrives on community input and collaboration.
+
+### 🌟 Ways to Contribute
+
+| Contribution Type | Description | Impact |
+|------------------|-------------|---------|
+| 🐛 **Bug Reports** | Found an issue? Let us know! | High |
+| 💡 **Feature Requests** | Have an idea? We'd love to hear it! | High |
+| 📝 **Documentation** | Improve examples, docs, or README | Medium |
+| 🔧 **Code Contributions** | Fix bugs or add features | High |
+| 🧪 **Testing** | Add tests or improve coverage | Medium |
+| 📢 **Community** | Help others, answer questions | High |
+
+### 🚀 Getting Started
+
+1. **⭐ Star this repository** - It helps others discover the project!
+2. **🍴 Fork the repository**
+3. **🌿 Create a feature branch**: `git checkout -b feature/amazing-feature`
+4. **💻 Make your changes**
+5. **✅ Add tests** for new functionality
+6. **📝 Update documentation** if needed
+7. **🔄 Submit a pull request**
+
+### 🎯 Contribution Guidelines
+
+- **Code Style**: Follow Go conventions and run `gofmt`
+- **Testing**: Add tests for new features and bug fixes
+- **Documentation**: Update README and examples as needed
+- **Commit Messages**: Use clear, descriptive commit messages
+- **Pull Requests**: Provide a clear description of changes
+
+### 💬 Community
+
+- **Discussions**: Use GitHub Discussions for questions and ideas
+- **Issues**: Report bugs and request features
+- **Pull Requests**: Submit code improvements
+
+**Every contribution matters!** Whether you're fixing a typo or adding a new monitor type, your help makes this project better for everyone.
+
+## 🆘 Support & Community
+
+| Resource | Description | Link |
+|----------|-------------|------|
+| 📚 **Documentation** | Complete API reference and guides | [docs/](docs/) |
+| 💡 **Examples** | Real-world usage examples | [examples/](examples/) |
+| 🐛 **Bug Reports** | Found an issue? Let us know! | [GitHub Issues](https://github.com/tafaust/terraform-provider-peekaping/issues) |
+| 💬 **Discussions** | Questions and community chat | [GitHub Discussions](https://github.com/tafaust/terraform-provider-peekaping/discussions) |
+| 📖 **Terraform Registry** | Official provider documentation | [Registry](https://registry.terraform.io/providers/tafaust/peekaping/latest) |
+
+## 🎯 Roadmap & Status
+
+### ✅ Completed Features
+- [x] **All Core Resources** - Monitors, notifications, tags, maintenance, status pages, proxies
+- [x] **Data Sources** - Query existing resources
+- [x] **18 Monitor Types** - Comprehensive monitoring coverage
+- [x] **2FA Support** - Enhanced security
+- [x] **Terraform Registry** - Official provider distribution
+- [x] **Comprehensive Examples** - Real-world usage patterns
+- [x] **Production Testing** - Battle-tested reliability
+
+### 🚧 In Progress
+- [ ] **API Key Authentication** - Alternative auth method ([PR pending](https://github.com/0xfurai/peekaping/pull/204))
+- [ ] **Enhanced Error Handling** - Better user experience
+
+---
+
+<div align="center">
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+**Made with ❤️ by the community, for the community**
 
-For issues and questions:
+[![Made with Go](https://img.shields.io/badge/Made%20with-Go-00ADD8?style=for-the-badge&logo=go)](https://golang.org)
+[![Powered by Terraform](https://img.shields.io/badge/Powered%20by-Terraform-7B42BC?style=for-the-badge&logo=terraform)](https://terraform.io)
 
-1. Check the [examples](examples/) directory
-2. Review the [documentation](docs/)
-3. Open an issue on GitHub
-
-## 🎯 Roadmap
-
-- [x] Implement all core resources (monitors, notifications, tags, maintenance, status pages, proxies)
-- [x] Add data sources for all resources
-- [x] Improve error handling and validation
-- [x] Add comprehensive examples
-- [x] Add more comprehensive tests
-- [x] Publish to Terraform Registry
-- [x] Add support for additional monitor types
-- [ ] Add support for API Key authentication methods ([PR pending](https://github.com/0xfurai/peekaping/pull/204))
+</div>
