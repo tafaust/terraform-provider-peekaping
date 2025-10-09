@@ -38,12 +38,12 @@ Before contributing, ensure you have the following installed:
 1. **Fork the repository** on GitHub
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/your-username/terraform-provider-peekaping-monitors.git
-   cd terraform-provider-peekaping-monitors
+   git clone https://github.com/your-username/terraform-provider-peekaping.git
+   cd terraform-provider-peekaping
    ```
 3. **Add upstream remote**:
    ```bash
-   git remote add upstream https://github.com/tafaust/terraform-provider-peekaping-monitors.git
+   git remote add upstream https://github.com/tafaust/terraform-provider-peekaping.git
    ```
 
 ## Development Environment
