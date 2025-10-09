@@ -13,9 +13,7 @@ resource "peekaping_proxy" "monitoring_proxy" {
   host     = "proxy.example.com"
   port     = 8080
   protocol = "http"
-  auth     = true
-  username = "proxy_user"
-  password = "proxy_password"
+  auth     = false
 }
 ```
 

@@ -11,15 +11,16 @@ Creates and manages notification channels in Peekaping.
 ```hcl
 resource "peekaping_notification" "email_alerts" {
   name = "Email Alerts"
-  type = "email"
+  type = "smtp"
   config = jsonencode({
     smtp_host = "smtp.example.com"
     smtp_port = 587
     username  = "alerts@example.com"
     password  = "password"
     from      = "alerts@example.com"
-    to        = ["admin@example.com"]
+    to        = "admin@example.com"
   })
+  active     = true
   is_default = true
 }
 ```
@@ -29,7 +30,7 @@ resource "peekaping_notification" "email_alerts" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the notification channel.
-* `type` - (Required) The type of notification. Valid values are: `email`, `webhook`, `slack`, `discord`, `telegram`.
+* `type` - (Required) The type of notification. Valid values are: `smtp`, `webhook`, `slack`, `discord`, `telegram`.
 * `config` - (Required) The configuration for the notification as a JSON string.
 * `is_default` - (Optional) Whether this is the default notification channel. Defaults to `false`.
 

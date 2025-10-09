@@ -13,21 +13,10 @@ resource "peekaping_status_page" "public_status" {
   title       = "Service Status"
   description = "Public status page for our services"
   slug        = "status"
-  monitor_ids = [
-    peekaping_monitor.api_health.id,
-    peekaping_monitor.website.id
-  ]
-  published               = true
-  theme                   = "default"
-  footer_text             = "© 2024 Example Company"
-  custom_css              = ".status-page { font-family: Arial, sans-serif; }"
-  google_analytics_tag_id = "GA-XXXXXXXXX"
-  auto_refresh_interval   = 30
-  search_engine_index     = true
-  show_certificate_expiry = true
-  show_powered_by         = false
-  show_tags               = true
-  password                = "status-page-password"
+  published   = true
+  theme       = "auto"
+  icon        = "https://example.com/icon.png"
+  footer_text = "© 2024 Example Company"
 }
 ```
 

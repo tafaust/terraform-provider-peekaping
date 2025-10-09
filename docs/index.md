@@ -95,12 +95,11 @@ resource "peekaping_monitor" "api_health" {
   name = "API Health Check"
   type = "http"
   config = jsonencode({
-    url    = "https://api.example.com/health"
-    method = "GET"
-    headers = {
-      "User-Agent" = "Terraform-Provider-Peekaping"
-    }
-    accepted_status_codes = [200, 201, 202, 204]
+    url                  = "https://api.example.com/health"
+    method               = "GET"
+    encoding             = "json"
+    accepted_statuscodes = ["2XX"]
+    authMethod           = "none"
   })
   interval         = 60
   timeout          = 30
@@ -123,14 +122,14 @@ Creates and manages notification channels.
 ```hcl
 resource "peekaping_notification" "email_alerts" {
   name = "Email Alerts"
-  type = "email"
+  type = "smtp"
   config = jsonencode({
     smtp_host = "smtp.example.com"
     smtp_port = 587
     username  = "alerts@example.com"
     password  = "password"
     from      = "alerts@example.com"
-    to        = ["admin@example.com"]
+    to        = "admin@example.com"
   })
   is_default = true
 }
@@ -161,9 +160,7 @@ resource "peekaping_proxy" "monitoring_proxy" {
   host     = "proxy.example.com"
   port     = 8080
   protocol = "http"
-  auth     = true
-  username = "proxy_user"
-  password = "proxy_password"
+  auth     = false
 }
 ```
 
@@ -175,13 +172,10 @@ Creates and manages maintenance windows.
 
 ```hcl
 resource "peekaping_maintenance" "scheduled_maintenance" {
-  title           = "Scheduled Maintenance"
-  description     = "Regular maintenance window"
-  strategy        = "once"
-  monitor_ids     = [peekaping_monitor.api_health.id]
-  start_date_time = "2024-12-25T02:00:00Z"
-  end_date_time   = "2024-12-25T04:00:00Z"
-  timezone        = "UTC"
+  title       = "Scheduled Maintenance"
+  description = "Regular maintenance window"
+  strategy    = "once"
+  timezone    = "UTC"
 }
 ```
 
@@ -196,21 +190,10 @@ resource "peekaping_status_page" "public_status" {
   title       = "Service Status"
   description = "Public status page for our services"
   slug        = "status"
-  monitor_ids = [
-    peekaping_monitor.api_health.id,
-    peekaping_monitor.website.id
-  ]
-  published               = true
-  theme                   = "default"
-  footer_text             = "© 2024 Example Company"
-  custom_css              = ".status-page { font-family: Arial, sans-serif; }"
-  google_analytics_tag_id = "GA-XXXXXXXXX"
-  auto_refresh_interval   = 30
-  search_engine_index     = true
-  show_certificate_expiry = true
-  show_powered_by         = false
-  show_tags               = true
-  password                = "status-page-password"
+  published   = true
+  theme       = "auto"
+  icon        = "https://example.com/icon.png"
+  footer_text = "© 2024 Example Company"
 }
 ```
 

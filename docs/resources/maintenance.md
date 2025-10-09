@@ -10,13 +10,10 @@ Creates and manages maintenance windows in Peekaping.
 
 ```hcl
 resource "peekaping_maintenance" "scheduled_maintenance" {
-  title           = "Scheduled Maintenance"
-  description     = "Regular maintenance window"
-  strategy        = "once"
-  monitor_ids     = [peekaping_monitor.api_health.id]
-  start_date_time = "2024-12-25T02:00:00Z"
-  end_date_time   = "2024-12-25T04:00:00Z"
-  timezone        = "UTC"
+  title       = "Scheduled Maintenance"
+  description = "Regular maintenance window"
+  strategy    = "once"
+  timezone    = "UTC"
 }
 ```
 
@@ -28,8 +25,8 @@ The following arguments are supported:
 * `description` - (Optional) A description of the maintenance window.
 * `strategy` - (Required) The maintenance strategy. Valid values are: `once`, `recurring`.
 * `monitor_ids` - (Optional) List of monitor IDs to include in the maintenance window.
-* `start_date_time` - (Required) The start date and time of the maintenance window.
-* `end_date_time` - (Required) The end date and time of the maintenance window.
+* `start_date_time` - (Optional) The start date and time of the maintenance window.
+* `end_date_time` - (Optional) The end date and time of the maintenance window.
 * `timezone` - (Optional) The timezone for the maintenance window. Defaults to `UTC`.
 
 ## Attributes Reference

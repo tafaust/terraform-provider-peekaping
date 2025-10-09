@@ -13,12 +13,11 @@ resource "peekaping_monitor" "api_health" {
   name = "API Health Check"
   type = "http"
   config = jsonencode({
-    url    = "https://api.example.com/health"
-    method = "GET"
-    headers = {
-      "User-Agent" = "Terraform-Provider-Peekaping"
-    }
-    accepted_status_codes = [200, 201, 202, 204]
+    url                  = "https://api.example.com/health"
+    method               = "GET"
+    encoding             = "json"
+    accepted_statuscodes = ["2XX"]
+    authMethod           = "none"
   })
   interval         = 60
   timeout          = 30
