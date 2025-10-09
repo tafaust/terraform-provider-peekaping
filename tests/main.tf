@@ -18,10 +18,10 @@ provider "peekaping" {
 # HTTP Monitor
 resource "peekaping_monitor" "http" {
   count = var.monitor_type == "http" ? 1 : 0
-  
-  name     = var.monitor_name
-  type     = var.monitor_type
-  config   = jsonencode({
+
+  name = var.monitor_name
+  type = var.monitor_type
+  config = jsonencode({
     url                  = var.monitor_url
     method               = "GET"
     encoding             = "json"
@@ -37,10 +37,10 @@ resource "peekaping_monitor" "http" {
 # TCP Monitor
 resource "peekaping_monitor" "tcp" {
   count = var.monitor_type == "tcp" ? 1 : 0
-  
-  name     = var.monitor_name
-  type     = var.monitor_type
-  config   = jsonencode({
+
+  name = var.monitor_name
+  type = var.monitor_type
+  config = jsonencode({
     host = var.monitor_host
     port = var.monitor_port
   })
@@ -52,10 +52,10 @@ resource "peekaping_monitor" "tcp" {
 # Ping Monitor
 resource "peekaping_monitor" "ping" {
   count = var.monitor_type == "ping" ? 1 : 0
-  
-  name     = var.monitor_name
-  type     = var.monitor_type
-  config   = jsonencode({
+
+  name = var.monitor_name
+  type = var.monitor_type
+  config = jsonencode({
     host        = var.monitor_host
     packet_size = var.packet_size
   })
@@ -67,10 +67,10 @@ resource "peekaping_monitor" "ping" {
 # DNS Monitor
 resource "peekaping_monitor" "dns" {
   count = var.monitor_type == "dns" ? 1 : 0
-  
-  name     = var.monitor_name
-  type     = var.monitor_type
-  config   = jsonencode({
+
+  name = var.monitor_name
+  type = var.monitor_type
+  config = jsonencode({
     host            = var.monitor_host
     resolver_server = var.resolver_server
     port            = var.resolver_port
@@ -84,12 +84,12 @@ resource "peekaping_monitor" "dns" {
 # MySQL Monitor
 resource "peekaping_monitor" "mysql" {
   count = var.monitor_type == "mysql" ? 1 : 0
-  
-  name     = var.monitor_name
-  type     = var.monitor_type
-  config   = jsonencode({
+
+  name = var.monitor_name
+  type = var.monitor_type
+  config = jsonencode({
     connection_string = var.connection_string
-    query            = "SELECT 1"
+    query             = "SELECT 1"
   })
   interval = 60
   timeout  = 30
@@ -99,12 +99,12 @@ resource "peekaping_monitor" "mysql" {
 # Redis Monitor
 resource "peekaping_monitor" "redis" {
   count = var.monitor_type == "redis" ? 1 : 0
-  
-  name     = var.monitor_name
-  type     = var.monitor_type
-  config   = jsonencode({
+
+  name = var.monitor_name
+  type = var.monitor_type
+  config = jsonencode({
     databaseConnectionString = var.connection_string
-    ignoreTls              = false
+    ignoreTls                = false
   })
   interval = 60
   timeout  = 30
