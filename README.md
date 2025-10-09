@@ -1,5 +1,15 @@
 # Terraform Provider for Peekaping
 
+[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://terraform.io)
+[![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-0.0.3-blue?style=for-the-badge)](https://github.com/tafaust/terraform-provider-peekaping/releases)
+[![Terraform Registry](https://img.shields.io/badge/Terraform%20Registry-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://registry.terraform.io/providers/tafaust/peekaping/latest)
+[![Peekaping](https://img.shields.io/badge/Peekaping-0.0.39-orange?style=for-the-badge)](https://peekaping.com)
+[![Monitor Types](https://img.shields.io/badge/Monitor%20Types-18-brightgreen?style=for-the-badge)](#monitors)
+[![Resources](https://img.shields.io/badge/Resources-6-purple?style=for-the-badge)](#resources-supported)
+[![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
+
 A comprehensive Terraform provider for managing Peekaping monitoring resources.
 
 Terraform provider version: **0.0.3**
