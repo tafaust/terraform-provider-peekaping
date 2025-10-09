@@ -18,7 +18,11 @@ resource "peekaping_monitor" "website" {
   name = "Website Homepage"
   type = "http"
   config = jsonencode({
-    url = "https://example.com"
+    url                  = "https://example.com"
+    method               = "GET"
+    encoding             = "json"
+    accepted_statuscodes = ["2XX"]
+    authMethod           = "none"
   })
   interval = 60
   timeout  = 30
@@ -35,13 +39,13 @@ resource "peekaping_tag" "production" {
 # Create an email notification
 resource "peekaping_notification" "email_alerts" {
   name = "Email Alerts"
-  type = "email"
+  type = "smtp"
   config = jsonencode({
     smtp_host = "smtp.example.com"
     smtp_port = 587
     username  = "alerts@example.com"
     password  = "password"
     from      = "alerts@example.com"
-    to        = ["admin@example.com"]
+    to        = "admin@example.com"
   })
 }

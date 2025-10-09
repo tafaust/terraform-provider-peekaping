@@ -124,10 +124,10 @@ resource "peekaping_monitor" "api_health" {
     headers = {
       "User-Agent" = "Terraform-Provider-Peekaping"
     }
-    accepted_status_codes = [200, 201, 202, 204]
-    timeout               = 30
-    follow_redirects      = true
-    ignore_tls_errors     = false
+    accepted_statuscodes = [200, 201, 202, 204]
+    timeout              = 30
+    follow_redirects     = true
+    ignore_tls_errors    = false
   })
   interval         = 60
   timeout          = 30
@@ -193,9 +193,9 @@ resource "peekaping_monitor" "dns_lookup" {
   name = "DNS Lookup"
   type = "dns"
   config = jsonencode({
-    hostname    = var.dns_hostname
-    record_type = "A"
-    nameserver  = "8.8.8.8"
+    hostname        = var.dns_hostname
+    resolve_type    = "A"
+    resolver_server = "8.8.8.8"
   })
   interval         = 300
   timeout          = 10

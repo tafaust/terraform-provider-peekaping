@@ -109,15 +109,11 @@ provider "peekaping" {
 #   name = "API Health Check"
 #   type = "http"
 #   config = jsonencode({
-#     url    = var.api_url
-#     method = "GET"
-#     headers = {
-#       "User-Agent" = "Terraform-Provider-Peekaping"
-#     }
-#     accepted_status_codes = [200, 201, 202, 204]
-#     timeout               = 30
-#     follow_redirects      = true
-#     ignore_tls_errors     = false
+#     url                  = var.api_url
+#     method               = "GET"
+#     encoding             = "json"
+#     accepted_statuscodes = ["2XX"]
+#     authMethod           = "none"
 #   })
 #   interval         = 60
 #   timeout          = 30
@@ -134,7 +130,11 @@ provider "peekaping" {
 #   name = "Website Homepage"
 #   type = "http"
 #   config = jsonencode({
-#     url = var.website_url
+#     url                  = var.website_url
+#     method               = "GET"
+#     encoding             = "json"
+#     accepted_statuscodes = ["2XX"]
+#     authMethod           = "none"
 #   })
 #   interval         = 120
 #   timeout          = 20
@@ -150,11 +150,11 @@ provider "peekaping" {
 #   name = "Database Connection"
 #   type = "tcp"
 #   config = jsonencode({
-#     hostname = var.db_host
-#     port     = var.db_port
+#     host = var.db_host
+#     port = var.db_port
 #   })
 #   interval         = 300
-#   timeout          = 10
+#   timeout          = 16
 #   max_retries      = 2
 #   retry_interval   = 300
 #   resend_interval  = 3
@@ -170,7 +170,7 @@ provider "peekaping" {
 #     host = "8.8.8.8"
 #   })
 #   interval         = 60
-#   timeout          = 10
+#   timeout          = 16
 #   max_retries      = 3
 #   retry_interval   = 60
 #   resend_interval  = 5
@@ -183,12 +183,13 @@ provider "peekaping" {
 #   name = "DNS Lookup"
 #   type = "dns"
 #   config = jsonencode({
-#     hostname    = var.dns_hostname
-#     record_type = "A"
-#     nameserver  = "8.8.8.8"
+#     host            = var.dns_hostname
+#     resolve_type    = "A"
+#     resolver_server = "8.8.8.8"
+#     port            = 53
 #   })
 #   interval         = 300
-#   timeout          = 10
+#   timeout          = 16
 #   max_retries      = 2
 #   retry_interval   = 300
 #   resend_interval  = 3

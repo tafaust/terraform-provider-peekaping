@@ -36,14 +36,14 @@ resource "peekaping_tag" "staging" {
 
 resource "peekaping_notification" "email_alerts" {
   name = "Email Alerts"
-  type = "email"
+  type = "smtp"
   config = jsonencode({
     smtp_host = var.smtp_host
     smtp_port = 587
     username  = var.smtp_username
     password  = var.smtp_password
     from      = var.smtp_from
-    to        = [var.alert_email]
+    to        = var.alert_email
   })
   is_default = true
 }
@@ -81,15 +81,11 @@ resource "peekaping_monitor" "api_health" {
   name = "API Health Check"
   type = "http"
   config = jsonencode({
-    url    = var.api_url
-    method = "GET"
-    headers = {
-      "User-Agent" = "Terraform-Provider-Peekaping"
-    }
-    accepted_status_codes = [200, 201, 202, 204]
-    timeout               = 30
-    follow_redirects      = true
-    ignore_tls_errors     = false
+    url                  = var.api_url
+    method               = "GET"
+    encoding             = "json"
+    accepted_statuscodes = ["2XX"]
+    authMethod           = "none"
   })
   interval         = 60
   timeout          = 30
@@ -106,7 +102,11 @@ resource "peekaping_monitor" "website" {
   name = "Website Homepage"
   type = "http"
   config = jsonencode({
-    url = var.website_url
+    url                  = var.website_url
+    method               = "GET"
+    encoding             = "json"
+    accepted_statuscodes = ["2XX"]
+    authMethod           = "none"
   })
   interval         = 120
   timeout          = 20
@@ -122,11 +122,11 @@ resource "peekaping_monitor" "database" {
   name = "Database Connection"
   type = "tcp"
   config = jsonencode({
-    hostname = var.db_host
-    port     = var.db_port
+    host = var.db_host
+    port = var.db_port
   })
   interval         = 300
-  timeout          = 10
+  timeout          = 16
   max_retries      = 2
   retry_interval   = 300
   resend_interval  = 3
@@ -142,7 +142,7 @@ resource "peekaping_monitor" "gateway" {
     host = "8.8.8.8"
   })
   interval         = 60
-  timeout          = 10
+  timeout          = 16
   max_retries      = 3
   retry_interval   = 60
   resend_interval  = 5
@@ -155,12 +155,13 @@ resource "peekaping_monitor" "dns_lookup" {
   name = "DNS Lookup"
   type = "dns"
   config = jsonencode({
-    hostname    = var.dns_hostname
-    record_type = "A"
-    nameserver  = "8.8.8.8"
+    host            = var.dns_hostname
+    resolve_type    = "A"
+    resolver_server = "8.8.8.8"
+    port            = 53
   })
   interval         = 300
-  timeout          = 10
+  timeout          = 16
   max_retries      = 2
   retry_interval   = 300
   resend_interval  = 3
@@ -174,20 +175,16 @@ resource "peekaping_monitor" "dns_lookup" {
 # =============================================================================
 
 resource "peekaping_maintenance" "scheduled_maintenance" {
-  title           = "Scheduled Maintenance"
-  description     = "Regular maintenance window"
-  strategy        = "once"
-  monitor_ids     = [peekaping_monitor.api_health.id, peekaping_monitor.website.id]
-  start_date_time = var.maintenance_start
-  end_date_time   = var.maintenance_end
-  timezone        = "UTC"
+  title       = "Scheduled Maintenance"
+  description = "Regular maintenance window"
+  strategy    = "once"
+  timezone    = "UTC"
 }
 
 resource "peekaping_maintenance" "weekly_maintenance" {
   title       = "Weekly Maintenance"
   description = "Weekly maintenance window"
   strategy    = "recurring"
-  monitor_ids = [peekaping_monitor.database.id]
   weekdays    = [0] # Sunday
   start_time  = "02:00"
   end_time    = "04:00"
@@ -202,22 +199,8 @@ resource "peekaping_status_page" "public_status" {
   title       = "Service Status"
   description = "Public status page for our services"
   slug        = "status"
-  monitor_ids = [
-    peekaping_monitor.api_health.id,
-    peekaping_monitor.website.id,
-    peekaping_monitor.database.id,
-    peekaping_monitor.gateway.id
-  ]
-  published               = true
-  theme                   = "default"
-  icon                    = var.status_page_icon
-  footer_text             = "© 2024 Example Company"
-  custom_css              = ".status-page { font-family: Arial, sans-serif; }"
-  google_analytics_tag_id = var.google_analytics_id
-  auto_refresh_interval   = 30
-  search_engine_index     = true
-  show_certificate_expiry = true
-  show_powered_by         = false
-  show_tags               = true
-  password                = var.status_page_password
+  published   = true
+  theme       = "auto"
+  icon        = var.status_page_icon
+  footer_text = "© 2024 Example Company"
 }
