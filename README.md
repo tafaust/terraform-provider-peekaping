@@ -18,7 +18,7 @@ Tested with Peekaping version: **0.0.39**
 - **Maintenance Windows**: Schedule maintenance periods
 - **Status Pages**: Create and manage public status pages
 - **Proxies**: Configure proxy settings for monitors
-- **Multiple Monitor Types**: Support for HTTP, TCP, Ping, DNS, Push, and gRPC monitors
+- **Multiple Monitor Types**: Support for HTTP, HTTP-keyword, HTTP-JSON-query, TCP, Ping, DNS, Push, Docker, gRPC-keyword, SNMP, MongoDB, MySQL, PostgreSQL, SQL Server, Redis, MQTT, RabbitMQ, and Kafka Producer monitors
 - **2FA Authentication**: Full support for two-factor authentication
 - **JSON Configuration**: Proper handling of monitor configuration JSON
 - **Comprehensive Examples**: Working examples for all functionality
@@ -28,11 +28,23 @@ Tested with Peekaping version: **0.0.39**
 #### Monitors
 
 - **HTTP**: Web service monitoring with custom headers, authentication, and status code validation
+- **HTTP-keyword**: HTTP monitoring with keyword detection
+- **HTTP-JSON-query**: HTTP monitoring with JSON response validation
 - **TCP**: Port connectivity monitoring
 - **Ping**: ICMP ping monitoring
 - **DNS**: DNS record monitoring
 - **Push**: Push-based monitoring with tokens
-- **gRPC**: gRPC service monitoring
+- **Docker**: Container status and health monitoring
+- **gRPC-keyword**: gRPC service monitoring with keyword detection
+- **SNMP**: SNMP device monitoring
+- **MongoDB**: MongoDB database monitoring
+- **MySQL**: MySQL database monitoring
+- **PostgreSQL**: PostgreSQL database monitoring
+- **SQL Server**: Microsoft SQL Server monitoring
+- **Redis**: Redis cache monitoring
+- **MQTT**: MQTT broker monitoring
+- **RabbitMQ**: RabbitMQ message broker monitoring
+- **Kafka Producer**: Kafka producer monitoring
 
 #### Other Resources
 
@@ -58,8 +70,8 @@ Tested with Peekaping version: **0.0.39**
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/tafaust/terraform-provider-peekaping-monitors
-   cd terraform-provider-peekaping-monitors
+   git clone https://github.com/tafaust/terraform-provider-peekaping
+   cd terraform-provider-peekaping
    ```
 
 2. **Build the provider**:
@@ -72,7 +84,7 @@ Tested with Peekaping version: **0.0.39**
    ```hcl
    provider_installation {
      dev_overrides {
-       "tafaust/peekaping" = "/path/to/terraform-provider-peekaping-monitors"
+       "tafaust/peekaping" = "/path/to/terraform-provider-peekaping"
      }
      direct {}
    }
@@ -84,7 +96,7 @@ Tested with Peekaping version: **0.0.39**
 
 ```hcl
 provider "peekaping" {
-  endpoint = "https://uptime.tafaust.org"  # Your Peekaping instance URL
+  endpoint = "https://api.peekaping.com"  # Your Peekaping instance URL
   email    = "your-email@example.com"      # Your Peekaping email
   password = "your-password"                # Your Peekaping password
   token    = "123456"                      # 2FA token (if 2FA is enabled)
@@ -96,7 +108,7 @@ provider "peekaping" {
 You can also use environment variables:
 
 ```bash
-export PEEKAPING_ENDPOINT="https://uptime.tafaust.org"
+export PEEKAPING_ENDPOINT="https://api.peekaping.com"
 export PEEKAPING_EMAIL="your-email@example.com"
 export PEEKAPING_PASSWORD="your-password"
 export PEEKAPING_TOKEN="123456"  # 2FA token

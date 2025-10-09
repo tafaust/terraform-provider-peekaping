@@ -37,7 +37,7 @@ resource "peekaping_monitor" "api_health" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the monitor.
-* `type` - (Required) The type of monitor. Valid values are: `http`, `tcp`, `ping`, `dns`, `smtp`, `pop3`, `imap`.
+* `type` - (Required) The type of monitor. Valid values are: `http`, `http-keyword`, `http-json-query`, `push`, `tcp`, `ping`, `dns`, `docker`, `grpc-keyword`, `snmp`, `mongodb`, `mysql`, `postgres`, `sqlserver`, `redis`, `mqtt`, `rabbitmq`, `kafka-producer`.
 * `config` - (Required) The configuration for the monitor as a JSON string.
 * `interval` - (Optional) The check interval in seconds. Defaults to `60`.
 * `timeout` - (Optional) The timeout in seconds. Defaults to `30`.

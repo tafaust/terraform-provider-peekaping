@@ -6,7 +6,7 @@ The Peekaping Terraform provider allows you to manage monitoring infrastructure 
 
 ## Features
 
-- **Comprehensive Monitoring**: Support for HTTP, TCP, Ping, DNS, and other monitor types
+- **Comprehensive Monitoring**: Support for HTTP, HTTP-keyword, HTTP-JSON-query, TCP, Ping, DNS, Push, Docker, gRPC-keyword, SNMP, MongoDB, MySQL, PostgreSQL, SQL Server, Redis, MQTT, RabbitMQ, and Kafka Producer monitor types
 - **Notification Management**: Email, webhook, and other notification channels
 - **Resource Organization**: Tag-based organization and grouping
 - **Proxy Support**: HTTP/HTTPS proxy configuration for monitoring
