@@ -1,4 +1,4 @@
-# GNUmakefile
+# GNUmakefile for Terraform Provider Peekaping
 
 # Ensure Make is run with bash shell as some commands in this Makefile require bash
 SHELL := /bin/bash
@@ -41,13 +41,14 @@ build: asdf-install
 .PHONY: install
 install: build
 	@echo "==> Installing $(TARGET)..."
-	@go install $(LDFLAGS) .
+	@mkdir -p ~/.terraform.d/plugins/registry.terraform.io/tafaust/peekaping/0.1.0/linux_amd64
+	@cp $(TARGET) ~/.terraform.d/plugins/registry.terraform.io/tafaust/peekaping/0.1.0/linux_amd64/
 
-# Run tests
+# Run unit tests
 .PHONY: test
 test: asdf-install
-	@echo "==> Running tests..."
-	@go test -v ./...
+	@echo "==> Running unit tests..."
+	@go test ./internal/provider -v
 
 # Run tests without asdf (for CI)
 .PHONY: test-ci
@@ -59,7 +60,22 @@ test-ci:
 .PHONY: testacc
 testacc: asdf-install
 	@echo "==> Running acceptance tests..."
-	@TF_ACC=1 go test -v ./...
+	@if [ -z "$$PEEKAPING_API_URL" ] || [ -z "$$PEEKAPING_API_TOKEN" ]; then \
+		echo "Error: PEEKAPING_API_URL and PEEKAPING_API_TOKEN must be set for acceptance tests"; \
+		exit 1; \
+	fi
+	@TF_ACC=1 go test ./internal/provider -v -timeout 30m
+
+# Run Terraform native tests
+.PHONY: test-native
+test-native: asdf-install
+	@echo "==> Running Terraform native tests..."
+	@cd tests && terraform init
+	@cd tests && terraform test
+
+# Run all tests
+.PHONY: test-all
+test-all: test testacc test-native
 
 # Run tests with race detection
 .PHONY: testrace
@@ -79,12 +95,14 @@ testcover: asdf-install
 lint: asdf-install
 	@echo "==> Running linters..."
 	@golangci-lint run
+	@terraform fmt -check -recursive
 
 # Format code
 .PHONY: fmt
 fmt: asdf-install
 	@echo "==> Formatting code..."
 	@go fmt ./...
+	@terraform fmt -recursive
 
 # Run go mod tidy
 .PHONY: mod
@@ -116,6 +134,7 @@ asdf-install:
 tools: asdf-install
 	@echo "==> Installing development tools..."
 	@cd tools && go generate
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 # Run copywrite
 .PHONY: copywrite
@@ -147,21 +166,29 @@ clean:
 	@echo "==> Cleaning..."
 	@rm -f $(TARGET)
 	@rm -f coverage.out coverage.html
+	@rm -rf tests/.terraform
+	@rm -f tests/.terraform.lock.hcl
 	@go clean
 
 # Cross-compile for multiple platforms
 .PHONY: xc
 xc:
 	@echo "==> Cross-compiling..."
+	@mkdir -p dist
 	@for os in $(XC_OS); do \
 		for arch in $(XC_ARCH); do \
 			if [ "$$os" = "windows" ] && [ "$$arch" = "arm64" ]; then \
 				continue; \
 			fi; \
 			echo "Building for $$os/$$arch..."; \
-			GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 go build -o $(TARGET)-$$os-$$arch $(LDFLAGS) .; \
+			GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 go build -o dist/$(TARGET)_$$os_$$arch $(LDFLAGS) .; \
 		done; \
 	done
+
+# Build release binaries
+.PHONY: release
+release: xc
+	@echo "==> Release binaries built in dist/ directory"
 
 # Validate Terraform configurations
 .PHONY: validate
@@ -202,14 +229,44 @@ validate-all: check
 	@echo "🎉 All validations completed successfully!"
 	@echo "The Peekaping Terraform provider is ready for use."
 
+# Development helpers
+.PHONY: dev-setup
+dev-setup: asdf-install tools
+	@echo "==> Development environment setup complete"
+
+.PHONY: dev-test
+dev-test:
+	@echo "==> Running tests with development settings..."
+	@export TF_LOG=DEBUG
+	@export TF_ACC=1
+	@go test ./internal/provider -v -timeout 30m
+
+# CI/CD helpers
+.PHONY: ci-test
+ci-test:
+	@echo "==> Running tests for CI/CD..."
+	@go test ./internal/provider -v -race -coverprofile=coverage.out
+	@go tool cover -html=coverage.out -o coverage.html
+
+.PHONY: ci-acc-test
+ci-acc-test:
+	@echo "==> Running acceptance tests for CI/CD..."
+	@if [ -z "$$PEEKAPING_API_URL" ] || [ -z "$$PEEKAPING_API_TOKEN" ]; then \
+		echo "Skipping acceptance tests - credentials not provided"; \
+		exit 0; \
+	fi
+	@TF_ACC=1 go test ./internal/provider -v -timeout 30m -parallel 4
+
 # Show help
 .PHONY: help
 help:
 	@echo "Available targets:"
 	@echo "  build           - Build the provider binary"
 	@echo "  install         - Install the provider binary"
-	@echo "  test            - Run tests"
-	@echo "  testacc         - Run acceptance tests"
+	@echo "  test            - Run unit tests"
+	@echo "  testacc         - Run acceptance tests (requires PEEKAPING_API_URL and PEEKAPING_API_TOKEN)"
+	@echo "  test-native     - Run Terraform native tests"
+	@echo "  test-all        - Run all tests"
 	@echo "  testrace        - Run tests with race detection"
 	@echo "  testcover       - Run tests with coverage"
 	@echo "  lint            - Run linters"
@@ -218,13 +275,18 @@ help:
 	@echo "  docs            - Generate documentation"
 	@echo "  clean           - Clean build artifacts"
 	@echo "  xc              - Cross-compile for multiple platforms"
+	@echo "  release         - Build release binaries"
 	@echo "  validate        - Validate Terraform configuration"
 	@echo "  validate-examples - Validate example configurations"
 	@echo "  check           - Run all checks (fmt, lint, test, validate)"
 	@echo "  checkacc        - Run all checks including acceptance tests"
 	@echo "  validate-all    - Run comprehensive validation"
 	@echo "  asdf-install    - Install asdf tool versions"
-	@echo "  tools           - Install development tools via go generate"
+	@echo "  tools           - Install development tools"
+	@echo "  dev-setup       - Set up development environment"
+	@echo "  dev-test        - Run tests with development settings"
+	@echo "  ci-test         - Run tests for CI/CD"
+	@echo "  ci-acc-test     - Run acceptance tests for CI/CD"
 	@echo "  copywrite       - Check copywrite headers"
 	@echo "  copywrite-fix   - Fix copywrite headers"
 	@echo "  docker          - Build Docker image"

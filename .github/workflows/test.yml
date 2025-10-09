@@ -1,89 +1,180 @@
 name: Test
-permissions:
-  contents: read
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main, develop]
+
+env:
+  GO_VERSION: "1.24.1"
+  TERRAFORM_VERSION: "1.7.5"
 
 jobs:
-  test:
-    name: Test
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Go
-      uses: actions/setup-go@v6
-      with:
-        go-version: '1.24'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
 
-    - name: Cache Go modules
-      uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
-    - name: Install dependencies
-      run: |
-        go mod download
-        go mod verify
+      - name: Install dependencies
+        run: |
+          go mod download
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-    - name: Run tests
-      run: make test-ci
+      - name: Run linters
+        run: |
+          golangci-lint run --timeout=5m
 
-    - name: Run linting
-      uses: golangci/golangci-lint-action@v8
-      with:
-        version: v2.1
+      - name: Run unit tests
+        run: |
+          go test ./internal/provider -v -race -coverprofile=coverage.out
 
-    # - name: Run acceptance tests
-    #   run: make testacc
-    #   env:
-    #     TF_ACC: 1
-    #     PEEKAPING_ENDPOINT: http://localhost:8034
-    #     PEEKAPING_EMAIL: test@example.com
-    #     PEEKAPING_PASSWORD: testpassword
-    #     PEEKAPING_TOKEN: 123456
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.out
+          flags: unittests
+          name: codecov-umbrella
+
+  acceptance-tests:
+    name: Acceptance Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: |
+          go mod download
+
+      - name: Build provider
+        run: |
+          go build -o terraform-provider-peekaping
+
+      - name: Run acceptance tests
+        env:
+          TF_ACC: 1
+          PEEKAPING_API_URL: ${{ secrets.PEEKAPING_API_URL }}
+          PEEKAPING_API_TOKEN: ${{ secrets.PEEKAPING_API_TOKEN }}
+        run: |
+          if [ -n "$PEEKAPING_API_URL" ] && [ -n "$PEEKAPING_API_TOKEN" ]; then
+            go test ./internal/provider -v -timeout 30m -parallel 4
+          else
+            echo "Skipping acceptance tests - credentials not provided"
+          fi
+
+  terraform-native-tests:
+    name: Terraform Native Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Initialize Terraform
+        run: |
+          cd tests
+          terraform init
+
+      - name: Run Terraform native tests
+        env:
+          PEEKAPING_API_URL: ${{ secrets.PEEKAPING_API_URL }}
+          PEEKAPING_API_TOKEN: ${{ secrets.PEEKAPING_API_TOKEN }}
+        run: |
+          cd tests
+          if [ -n "$PEEKAPING_API_URL" ] && [ -n "$PEEKAPING_API_TOKEN" ]; then
+            terraform test
+          else
+            echo "Skipping Terraform native tests - credentials not provided"
+          fi
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Run Gosec Security Scanner
+        uses: securecodewarrior/github-action-gosec@master
+        with:
+          args: "-fmt sarif -out results.sarif ./..."
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
 
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: test
+    needs: [unit-tests, security-scan]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Go
-      uses: actions/setup-go@v6
-      with:
-        go-version: '1.24'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
 
-    - name: Cache Go modules
-      uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
+      - name: Build for multiple platforms
+        run: |
+          mkdir -p dist
+          GOOS=linux GOARCH=amd64 go build -o dist/terraform-provider-peekaping_linux_amd64
+          GOOS=darwin GOARCH=amd64 go build -o dist/terraform-provider-peekaping_darwin_amd64
+          GOOS=windows GOARCH=amd64 go build -o dist/terraform-provider-peekaping_windows_amd64.exe
 
-    - name: Install dependencies
-      run: |
-        go mod download
-        go mod verify
-
-    - name: Build
-      run: make build
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: terraform-provider-peekaping
-        path: terraform-provider-peekaping
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-provider-peekaping-binaries
+          path: dist/
