@@ -15,8 +15,6 @@ This example is organized into three phases that test the complete lifecycle of 
 ```
 examples/full-lifecycle/
 ├── README.md                    # This file
-├── main.tf                      # Original comprehensive example
-├── variables.tf                 # Original variables
 ├── phase1-create/               # Phase 1: Create resources
 │   ├── main.tf
 │   ├── variables.tf
