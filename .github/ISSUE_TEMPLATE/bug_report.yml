@@ -1,0 +1,210 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior in the Terraform Provider for Peekaping
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! 🐛
+
+        Please fill out the sections below to help us understand and reproduce the issue. The more information you provide, the faster we can resolve it.
+
+  - type: dropdown
+    id: bug-type
+    attributes:
+      label: 🎯 Bug Type
+      description: What type of bug is this?
+      options:
+        - Resource creation/update failure
+        - Resource deletion failure
+        - Data source query failure
+        - Provider configuration issue
+        - Authentication/2FA issue
+        - Performance issue
+        - Unexpected behavior
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 🚨 Severity
+      description: How severe is this bug?
+      options:
+        - Critical (Provider crashes, data loss)
+        - High (Core functionality broken)
+        - Medium (Feature partially broken)
+        - Low (Minor issue, workaround available)
+    validations:
+      required: true
+
+  - type: input
+    id: terraform-version
+    attributes:
+      label: 📋 Terraform Version
+      description: What version of Terraform are you using?
+      placeholder: "e.g., 1.6.0"
+    validations:
+      required: true
+
+  - type: input
+    id: provider-version
+    attributes:
+      label: 🔧 Provider Version
+      description: What version of the Peekaping provider are you using?
+      placeholder: "e.g., 0.0.3"
+    validations:
+      required: true
+
+  - type: input
+    id: peekaping-version
+    attributes:
+      label: 🎯 Peekaping Version
+      description: What version of Peekaping are you using?
+      placeholder: "e.g., 0.0.39"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 Description
+      description: A clear and concise description of what the bug is.
+      placeholder: "Describe what happened and what you expected to happen..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Configure provider with '...'
+        2. Create resource '...'
+        3. Run 'terraform apply'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: terraform-config
+    attributes:
+      label: 📄 Terraform Configuration
+      description: Please provide your Terraform configuration (remove sensitive information)
+      placeholder: |
+        ```hcl
+        provider "peekaping" {
+          endpoint = "https://api.peekaping.com"
+          email    = "your-email@example.com"
+          password = "your-password"
+        }
+
+        resource "peekaping_monitor" "example" {
+          # Your configuration here
+        }
+        ```
+      render: hcl
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-message
+    attributes:
+      label: ❌ Error Message
+      description: The complete error message you received
+      placeholder: |
+        Error: Failed to create monitor
+        │
+        │   with peekaping_monitor.example,
+        │   on main.tf line 5, in resource "peekaping_monitor" "example":
+        │    5: resource "peekaping_monitor" "example" {
+        │
+        │ Error: API returned 400 Bad Request
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✅ Expected Behavior
+      description: What you expected to happen
+      placeholder: "The monitor should be created successfully and appear in the Peekaping dashboard"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: ❌ Actual Behavior
+      description: What actually happened
+      placeholder: "The provider failed with an error and the monitor was not created"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📊 Logs
+      description: Any relevant logs or debug output (remove sensitive information)
+      placeholder: |
+        ```
+        [DEBUG] API Request: POST /api/monitor
+        [DEBUG] Request Body: {"name": "test", "type": "http"}
+        [ERROR] API Response: 400 Bad Request
+        ```
+
+  - type: checkboxes
+    id: environment
+    attributes:
+      label: 🖥️ Environment
+      description: Please check all that apply
+      options:
+        - label: Linux
+          required: false
+        - label: macOS
+          required: false
+        - label: Windows
+          required: false
+        - label: Docker
+          required: false
+        - label: CI/CD Pipeline
+          required: false
+        - label: Local Development
+          required: false
+        - label: Production
+          required: false
+
+  - type: checkboxes
+    id: additional-info
+    attributes:
+      label: ℹ️ Additional Information
+      description: Please check all that apply
+      options:
+        - label: I have searched existing issues
+          required: false
+        - label: I have checked the documentation
+          required: false
+        - label: I have tried the latest version
+          required: false
+        - label: This is a regression (worked in previous version)
+          required: false
+        - label: I can provide a minimal reproduction case
+          required: false
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: 🔧 Workaround
+      description: If you found a workaround, please describe it here
+      placeholder: "I can work around this by..."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📋 Additional Context
+      description: Add any other context about the problem here
+      placeholder: "Any additional information that might be helpful..."

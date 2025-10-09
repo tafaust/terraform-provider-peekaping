@@ -1,0 +1,189 @@
+name: ❓ Question / Support
+description: Ask a question or get help with using the Terraform Provider for Peekaping
+title: "[QUESTION] "
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reaching out! ❓
+
+        We're here to help! Please provide as much detail as possible so we can assist you effectively.
+
+  - type: dropdown
+    id: question-type
+    attributes:
+      label: 🎯 Question Type
+      description: What type of question do you have?
+      options:
+        - How to configure provider
+        - How to create a specific resource
+        - How to troubleshoot an issue
+        - Best practices
+        - Performance optimization
+        - Authentication/2FA help
+        - Integration with other tools
+        - General usage question
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: ⏰ Urgency
+      description: How urgent is this question?
+      options:
+        - Critical (Blocking production deployment)
+        - High (Need answer within 24 hours)
+        - Medium (Need answer within a few days)
+        - Low (Just curious, no rush)
+    validations:
+      required: true
+
+  - type: input
+    id: terraform-version
+    attributes:
+      label: 📋 Terraform Version
+      description: What version of Terraform are you using?
+      placeholder: "e.g., 1.6.0"
+
+  - type: input
+    id: provider-version
+    attributes:
+      label: 🔧 Provider Version
+      description: What version of the Peekaping provider are you using?
+      placeholder: "e.g., 0.0.3"
+
+  - type: textarea
+    id: question
+    attributes:
+      label: ❓ Your Question
+      description: What would you like to know?
+      placeholder: "Please describe your question in detail..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 📋 Context
+      description: Provide context about what you're trying to achieve
+      placeholder: |
+        I'm trying to...
+        My goal is to...
+        I'm working on...
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-setup
+    attributes:
+      label: 🔧 Current Setup
+      description: Describe your current configuration or setup (remove sensitive information)
+      placeholder: |
+        ```hcl
+        provider "peekaping" {
+          endpoint = "https://api.peekaping.com"
+          email    = "your-email@example.com"
+          password = "your-password"
+        }
+
+        # Your current configuration
+        ```
+      render: hcl
+
+  - type: textarea
+    id: what-youve-tried
+    attributes:
+      label: 🔄 What You've Tried
+      description: What have you already tried to solve this?
+      placeholder: |
+        I have tried:
+        1. Reading the documentation
+        2. Checking examples
+        3. Searching existing issues
+        4. Trying different configurations
+        5. Other approaches...
+
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: ❌ Error Messages
+      description: Any error messages you're seeing (if applicable)
+      placeholder: |
+        Error: ...
+        │
+        │   with peekaping_monitor.example,
+        │   on main.tf line 5:
+        │    5: resource "peekaping_monitor" "example" {
+        │
+        │ Error: ...
+      render: shell
+
+  - type: checkboxes
+    id: research-done
+    attributes:
+      label: 🔍 Research Done
+      description: Please check all that apply
+      options:
+        - label: I have read the documentation
+          required: false
+        - label: I have checked the examples
+          required: false
+        - label: I have searched existing issues
+          required: false
+        - label: I have searched GitHub Discussions
+          required: false
+        - label: I have tried different approaches
+          required: false
+
+  - type: checkboxes
+    id: environment
+    attributes:
+      label: 🖥️ Environment
+      description: Please check all that apply
+      options:
+        - label: Linux
+          required: false
+        - label: macOS
+          required: false
+        - label: Windows
+          required: false
+        - label: Docker
+          required: false
+        - label: CI/CD Pipeline
+          required: false
+        - label: Local Development
+          required: false
+        - label: Production
+          required: false
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: ✅ Expected Outcome
+      description: What would you like to achieve?
+      placeholder: "I want to be able to..."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📋 Additional Context
+      description: Any other context, screenshots, or information that might be helpful
+      placeholder: "Any additional information that might be helpful..."
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 📚 Resources That Might Help
+
+        Before we get started, here are some resources that might answer your question:
+
+        - 📖 [Provider Documentation](docs/)
+        - 💡 [Examples](examples/)
+        - 🐛 [Known Issues](https://github.com/tafaust/terraform-provider-peekaping/issues)
+        - 💬 [GitHub Discussions](https://github.com/tafaust/terraform-provider-peekaping/discussions)
+        - 📚 [Terraform Registry](https://registry.terraform.io/providers/tafaust/peekaping/latest)
+
+        If your question is about a bug or you'd like to request a feature, please use the appropriate template instead.

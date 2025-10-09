@@ -1,0 +1,194 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for the Terraform Provider for Peekaping
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! ✨
+
+        Please provide as much detail as possible to help us understand your request and assess its impact.
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: 🎯 Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - New resource type
+        - New data source
+        - New monitor type
+        - Provider configuration enhancement
+        - Authentication method
+        - Performance improvement
+        - Documentation enhancement
+        - Developer experience improvement
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🚀 Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (Blocking current work)
+        - High (Would significantly improve workflow)
+        - Medium (Nice to have)
+        - Low (Minor improvement)
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 📝 Feature Description
+      description: A clear and concise description of the feature you'd like to see
+      placeholder: "I would like the provider to support..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: 🎯 Problem Statement
+      description: What problem does this feature solve? What is the current limitation?
+      placeholder: |
+        Currently, I have to...
+        This is problematic because...
+        With this feature, I would be able to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: Describe your ideal solution or implementation
+      placeholder: |
+        I propose that the provider should...
+        The API should work like this...
+        Example configuration:
+        ```hcl
+        resource "peekaping_new_resource" "example" {
+          # Proposed configuration
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 🎯 Use Cases
+      description: Describe specific use cases where this feature would be valuable
+      placeholder: |
+        1. Use case 1: ...
+        2. Use case 2: ...
+        3. Use case 3: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternatives Considered
+      description: What alternatives have you considered? Why aren't they suitable?
+      placeholder: |
+        I considered using...
+        However, this doesn't work because...
+        Another option would be...
+        But this has limitations such as...
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-reference
+    attributes:
+      label: 📚 API Reference
+      description: If this involves Peekaping API changes, please provide relevant API documentation or examples
+      placeholder: |
+        Peekaping API endpoint: POST /api/...
+        Request body example:
+        ```json
+        {
+          "field": "value"
+        }
+        ```
+        Response example:
+        ```json
+        {
+          "id": "123",
+          "status": "active"
+        }
+        ```
+
+  - type: checkboxes
+    id: impact-assessment
+    attributes:
+      label: 📊 Impact Assessment
+      description: Please check all that apply
+      options:
+        - label: This would benefit many users
+          required: false
+        - label: This is essential for my use case
+          required: false
+        - label: This would improve developer experience
+          required: false
+        - label: This would improve performance
+          required: false
+        - label: This would improve security
+          required: false
+        - label: This would improve reliability
+          required: false
+
+  - type: checkboxes
+    id: research-done
+    attributes:
+      label: 🔍 Research Done
+      description: Please check all that apply
+      options:
+        - label: I have searched existing issues
+          required: false
+        - label: I have checked the documentation
+          required: false
+        - label: I have reviewed the roadmap
+          required: false
+        - label: I have tested the current functionality
+          required: false
+        - label: I have checked Peekaping API capabilities
+          required: false
+
+  - type: textarea
+    id: implementation-notes
+    attributes:
+      label: 🔧 Implementation Notes
+      description: Any technical details, constraints, or implementation considerations
+      placeholder: |
+        Technical considerations:
+        - This would require changes to...
+        - Potential challenges:
+        - Dependencies on:
+        - Breaking changes:
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Acceptance Criteria
+      description: How would you know this feature is complete? What would success look like?
+      placeholder: |
+        Success criteria:
+        - [ ] Feature works as described
+        - [ ] Documentation is updated
+        - [ ] Examples are provided
+        - [ ] Tests are included
+        - [ ] No breaking changes (if applicable)
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📋 Additional Context
+      description: Add any other context, screenshots, or examples about the feature request
+      placeholder: "Any additional information that might be helpful..."

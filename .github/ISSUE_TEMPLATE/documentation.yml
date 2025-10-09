@@ -1,0 +1,176 @@
+name: 📚 Documentation Improvement
+description: Suggest improvements to documentation, examples, or guides
+title: "[DOCS] "
+labels: ["documentation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! 📚
+
+        Good documentation is crucial for user adoption and success. Please provide details about what needs to be improved.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 📄 Documentation Type
+      description: What type of documentation needs improvement?
+      options:
+        - README.md
+        - Resource documentation
+        - Data source documentation
+        - Provider configuration guide
+        - Examples
+        - API reference
+        - Troubleshooting guide
+        - Contributing guide
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: improvement-type
+    attributes:
+      label: 🔧 Improvement Type
+      description: What kind of improvement is needed?
+      options:
+        - Missing information
+        - Incorrect information
+        - Unclear explanation
+        - Missing examples
+        - Outdated content
+        - Better organization
+        - Typos/grammar
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: file-path
+    attributes:
+      label: 📁 File Path
+      description: Which file(s) need improvement?
+      placeholder: "e.g., docs/resources/monitor.md, README.md, examples/simple/main.tf"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: 📝 Current Content
+      description: What is the current content that needs improvement?
+      placeholder: |
+        Current documentation says:
+        "Configure the provider with..."
+
+        Or provide a link to the specific section.
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: 🎯 Issue Description
+      description: What's wrong with the current documentation?
+      placeholder: |
+        The current documentation is unclear because...
+        Users might be confused by...
+        The example doesn't work because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: 💡 Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        The documentation should explain...
+        A better example would be:
+        ```hcl
+        # Improved configuration
+        resource "peekaping_monitor" "example" {
+          # Better example
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-impact
+    attributes:
+      label: 👥 User Impact
+      description: How does this documentation issue affect users?
+      placeholder: |
+        This affects users by:
+        - Making it difficult to get started
+        - Causing confusion about configuration
+        - Leading to failed deployments
+        - Creating support requests
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: affected-users
+    attributes:
+      label: 🎯 Affected User Types
+      description: Which types of users are affected?
+      options:
+        - label: New users (getting started)
+          required: false
+        - label: Experienced users (advanced features)
+          required: false
+        - label: Developers (contributing)
+          required: false
+        - label: DevOps teams (production use)
+          required: false
+        - label: All users
+          required: false
+
+  - type: textarea
+    id: additional-resources
+    attributes:
+      label: 📚 Additional Resources
+      description: Any relevant links, references, or examples that could help improve the documentation
+      placeholder: |
+        Useful resources:
+        - Link to Peekaping API docs
+        - Similar examples from other providers
+        - Community discussions
+        - Related issues
+
+  - type: checkboxes
+    id: research-done
+    attributes:
+      label: 🔍 Research Done
+      description: Please check all that apply
+      options:
+        - label: I have searched existing documentation issues
+          required: false
+        - label: I have tested the current examples
+          required: false
+        - label: I have checked the latest documentation
+          required: false
+        - label: I have reviewed similar providers' docs
+          required: false
+        - label: I can provide a working example
+          required: false
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: ✅ Proposed Solution
+      description: If you have a specific solution in mind, please describe it
+      placeholder: |
+        My proposed solution:
+        1. Update the section to explain...
+        2. Add an example showing...
+        3. Include a note about...
+        4. Link to additional resources...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📋 Additional Context
+      description: Any other context, screenshots, or examples about the documentation issue
+      placeholder: "Any additional information that might be helpful..."

@@ -1,0 +1,166 @@
+name: 🔒 Security Issue
+description: Report a security vulnerability in the Terraform Provider for Peekaping
+title: "[SECURITY] "
+labels: ["security", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🔒 **Security Issue Report**
+
+        Thank you for taking security seriously! Please use this template to report security vulnerabilities.
+
+        **⚠️ Important**: For security issues, please consider using [GitHub's private vulnerability reporting](https://github.com/tafaust/terraform-provider-peekaping/security/advisories/new) instead of public issues to allow us to address the issue before public disclosure.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 🚨 Severity Level
+      description: How severe is this security issue?
+      options:
+        - Critical (Remote code execution, data breach)
+        - High (Authentication bypass, privilege escalation)
+        - Medium (Information disclosure, DoS)
+        - Low (Minor security improvement)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: vulnerability-type
+    attributes:
+      label: 🎯 Vulnerability Type
+      description: What type of security issue is this?
+      options:
+        - Authentication bypass
+        - Credential exposure
+        - Injection vulnerability
+        - Information disclosure
+        - Denial of Service
+        - Input validation
+        - Configuration security
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 Description
+      description: A clear description of the security issue
+      placeholder: "Describe the security vulnerability..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 💥 Impact
+      description: What is the potential impact of this vulnerability?
+      placeholder: |
+        This vulnerability could allow attackers to:
+        - Access sensitive data
+        - Bypass authentication
+        - Execute arbitrary code
+        - Cause denial of service
+        - Other impacts...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: How can this vulnerability be reproduced?
+      placeholder: |
+        1. Configure provider with...
+        2. Create resource with...
+        3. Observe that...
+
+        **Note**: Please be careful not to include sensitive information or actual attack payloads.
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-versions
+    attributes:
+      label: 📋 Affected Versions
+      description: Which versions of the provider are affected?
+      placeholder: |
+        Affected versions:
+        - Provider: 0.0.1 - 0.0.3
+        - Terraform: All versions
+        - Peekaping: All versions
+    validations:
+      required: true
+
+  - type: textarea
+    id: proof-of-concept
+    attributes:
+      label: 🧪 Proof of Concept
+      description: Provide a minimal proof of concept (be careful not to include actual attack code)
+      placeholder: |
+        Minimal reproduction case:
+        ```hcl
+        # Safe example showing the issue
+        provider "peekaping" {
+          # Configuration that demonstrates the issue
+        }
+        ```
+
+        **Note**: Do not include actual attack payloads or sensitive information.
+
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      label: 💡 Suggested Fix
+      description: Do you have suggestions for how to fix this issue?
+      placeholder: |
+        Potential fixes:
+        1. Add input validation for...
+        2. Sanitize user input in...
+        3. Implement proper authentication checks...
+        4. Other suggestions...
+
+  - type: checkboxes
+    id: disclosure-timeline
+    attributes:
+      label: ⏰ Disclosure Timeline
+      description: Please check all that apply
+      options:
+        - label: I can wait for a coordinated disclosure
+          required: false
+        - label: This needs immediate attention
+          required: false
+        - label: I have already disclosed this publicly
+          required: false
+        - label: I will not disclose until fixed
+          required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📋 Additional Context
+      description: Any other relevant information
+      placeholder: |
+        Additional context:
+        - References to similar vulnerabilities
+        - CVE numbers if applicable
+        - Other relevant information...
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔒 Security Best Practices
+
+        When reporting security issues, please:
+
+        - ✅ **Do not** include actual attack payloads or sensitive information
+        - ✅ **Do** provide enough detail for us to understand and reproduce the issue
+        - ✅ **Consider** using private vulnerability reporting for sensitive issues
+        - ✅ **Be patient** as security issues require careful analysis and testing
+
+        ## 📞 Contact
+
+        For extremely sensitive security issues, you can also contact us directly at: [security@example.com]
+
+        **Thank you for helping keep our users safe!** 🛡️

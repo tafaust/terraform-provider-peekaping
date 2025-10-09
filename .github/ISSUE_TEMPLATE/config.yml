@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/tafaust/terraform-provider-peekaping/discussions
+    about: Ask questions, share ideas, and discuss the provider with the community
+  - name: 📚 Documentation
+    url: https://github.com/tafaust/terraform-provider-peekaping/tree/main/docs
+    about: Browse our comprehensive documentation and guides
+  - name: 💡 Examples
+    url: https://github.com/tafaust/terraform-provider-peekaping/tree/main/examples
+    about: Check out real-world examples and use cases
+  - name: 📖 Terraform Registry
+    url: https://registry.terraform.io/providers/tafaust/peekaping/latest
+    about: Official provider documentation on Terraform Registry
