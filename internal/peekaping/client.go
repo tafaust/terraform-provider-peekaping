@@ -163,12 +163,10 @@ func (c *Client) newReq(ctx context.Context, method, path string, body any) (*ht
 		req.Header.Set("Authorization", "Bearer "+c.accessToken)
 	}
 
-	// Debug logging
+	// Debug logging (sanitized)
 	fmt.Printf("DEBUG: Making %s request to %s\n", method, u)
 	if body != nil {
-		if configBytes, err := json.MarshalIndent(body, "", "  "); err == nil {
-			fmt.Printf("DEBUG: Request body:\n%s\n", string(configBytes))
-		}
+		fmt.Printf("DEBUG: Request body present (size: %d bytes)\n", len(fmt.Sprintf("%+v", body)))
 	}
 
 	return req, nil
@@ -216,7 +214,7 @@ func (c *Client) do(req *http.Request, out any) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("DEBUG: Response body (retry): %s\n", string(bodyBytes))
+		fmt.Printf("DEBUG: Response body (retry): %d bytes\n", len(bodyBytes))
 
 		return json.Unmarshal(bodyBytes, out)
 	}
@@ -226,7 +224,7 @@ func (c *Client) do(req *http.Request, out any) error {
 
 		// Debug logging for errors
 		fmt.Printf("DEBUG: HTTP Error %d for %s %s\n", res.StatusCode, req.Method, req.URL.String())
-		fmt.Printf("DEBUG: Response body: %s\n", string(b))
+		fmt.Printf("DEBUG: Response body: %d bytes\n", len(b))
 
 		// Try to parse as JSON error response
 		var errorResp struct {
@@ -249,7 +247,7 @@ func (c *Client) do(req *http.Request, out any) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("DEBUG: Response body: %s\n", string(bodyBytes))
+	fmt.Printf("DEBUG: Response body: %d bytes\n", len(bodyBytes))
 
 	return json.Unmarshal(bodyBytes, out)
 }
@@ -381,10 +379,8 @@ func (c *Client) ListMonitors(ctx context.Context) (*ListMonitorsResp, error) {
 }
 
 func (c *Client) CreateMonitor(ctx context.Context, in MonitorCreate) (*Monitor, error) {
-	// Log the request for debugging
-	if configBytes, err := json.MarshalIndent(in, "", "  "); err == nil {
-		fmt.Printf("DEBUG: Creating monitor with config:\n%s\n", string(configBytes))
-	}
+	// Log the request for debugging (sanitized)
+	fmt.Printf("DEBUG: Creating monitor with config (size: %d bytes)\n", len(fmt.Sprintf("%+v", in)))
 
 	req, err := c.newReq(ctx, http.MethodPost, "/monitors", in)
 	if err != nil {
@@ -410,9 +406,7 @@ func (c *Client) GetMonitor(ctx context.Context, id string) (*Monitor, error) {
 }
 
 func (c *Client) UpdateMonitor(ctx context.Context, id string, in MonitorUpdate) (*Monitor, error) {
-	fmt.Printf("*** UPDATE MONITOR CALLED ***\n")
-	fmt.Printf("ID: %s\n", id)
-	fmt.Printf("Update data: %+v\n", in)
+	fmt.Printf("DEBUG: Updating monitor ID: %s (config size: %d bytes)\n", id, len(fmt.Sprintf("%+v", in)))
 	req, err := c.newReq(ctx, http.MethodPut, "/monitors/"+url.PathEscape(id), in)
 	if err != nil {
 		fmt.Printf("ERROR creating request: %v\n", err)
@@ -423,7 +417,7 @@ func (c *Client) UpdateMonitor(ctx context.Context, id string, in MonitorUpdate)
 		fmt.Printf("ERROR in do: %v\n", err)
 		return nil, err
 	}
-	fmt.Printf("SUCCESS: %+v\n", out.Data)
+	fmt.Printf("DEBUG: Monitor update successful (ID: %s)\n", id)
 	return &out.Data, nil
 }
 
@@ -954,9 +948,7 @@ func (c *Client) GetProxy(ctx context.Context, id string) (*Proxy, error) {
 }
 
 func (c *Client) UpdateProxy(ctx context.Context, id string, in ProxyUpdate) (*Proxy, error) {
-	fmt.Printf("=== UPDATE PROXY CALLED ===\n")
-	fmt.Printf("ID: %s\n", id)
-	fmt.Printf("Update data: %+v\n", in)
+	fmt.Printf("DEBUG: Updating proxy ID: %s (config size: %d bytes)\n", id, len(fmt.Sprintf("%+v", in)))
 	req, err := c.newReq(ctx, http.MethodPatch, "/proxies/"+url.PathEscape(id), in)
 	if err != nil {
 		fmt.Printf("ERROR creating request: %v\n", err)
@@ -967,7 +959,7 @@ func (c *Client) UpdateProxy(ctx context.Context, id string, in ProxyUpdate) (*P
 		fmt.Printf("ERROR in do: %v\n", err)
 		return nil, err
 	}
-	fmt.Printf("SUCCESS: %+v\n", out.Data)
+	fmt.Printf("DEBUG: Proxy update successful (ID: %s)\n", id)
 	return &out.Data, nil
 }
 
