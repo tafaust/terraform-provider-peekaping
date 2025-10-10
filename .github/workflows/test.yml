@@ -208,7 +208,7 @@ jobs:
           GOOS=windows GOARCH=amd64 go build -o dist/terraform-provider-peekaping_windows_amd64.exe
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: terraform-provider-peekaping-binaries
           path: dist/
