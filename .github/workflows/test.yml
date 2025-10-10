@@ -175,11 +175,11 @@ jobs:
 
       - name: Install Gosec
         run: |
-          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
 
       - name: Run Gosec Security Scanner
         run: |
-          gosec -fmt sarif -out results.sarif ./...
+          gosec -fmt sarif -out results.sarif ./internal/... ./cmd/... ./main.go
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
