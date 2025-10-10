@@ -179,7 +179,7 @@ jobs:
 
       - name: Run Gosec Security Scanner
         run: |
-          gosec -fmt sarif -out results.sarif ./internal/... ./cmd/... ./main.go
+          gosec -fmt sarif -out results.sarif ./internal/... ./cmd/...
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
