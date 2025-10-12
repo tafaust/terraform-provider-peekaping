@@ -24,6 +24,10 @@ resource "peekaping_monitor" "example" {
   config = jsonencode({
     url = "https://example.com"
   })
+  interval      = 60
+  timeout       = 30
+  retry_interval = 60
+  active        = true
 }
 ```
 

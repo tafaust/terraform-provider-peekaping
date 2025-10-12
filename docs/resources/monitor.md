@@ -75,6 +75,10 @@ resource "peekaping_monitor" "http_example" {
     authMethod           = "none"
     check_cert_expiry    = true
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -93,6 +97,10 @@ resource "peekaping_monitor" "http_auth" {
     basic_auth_user      = "username"
     basic_auth_pass      = "password"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -110,6 +118,10 @@ resource "peekaping_monitor" "keyword_example" {
     keyword              = "OK"
     invert_keyword       = false
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -128,6 +140,10 @@ resource "peekaping_monitor" "json_query_example" {
     json_condition       = "=="
     expected_value       = "healthy"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -141,6 +157,10 @@ resource "peekaping_monitor" "tcp_example" {
     host = "db.example.com"
     port = 5432
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -154,6 +174,10 @@ resource "peekaping_monitor" "ping_example" {
     host        = "server.example.com"
     packet_size = 56
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -169,6 +193,10 @@ resource "peekaping_monitor" "dns_example" {
     port            = 53
     resolve_type    = "A"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -194,6 +222,10 @@ resource "peekaping_monitor" "mysql_example" {
     connection_string = "mysql://user:password@host:3306/database"
     query            = "SELECT 1"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 
 # PostgreSQL
@@ -204,6 +236,10 @@ resource "peekaping_monitor" "postgres_example" {
     database_connection_string = "postgres://user:password@host:5432/database"
     database_query            = "SELECT 1"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 
 # MongoDB
@@ -216,6 +252,10 @@ resource "peekaping_monitor" "mongodb_example" {
     jsonPath        = "$.ok"
     expectedValue   = "1"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 
@@ -233,6 +273,10 @@ resource "peekaping_monitor" "redis_example" {
     clientCert             = "-----BEGIN CERTIFICATE-----..."
     clientKey              = "-----BEGIN PRIVATE KEY-----..."
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 
 # MQTT
@@ -248,6 +292,10 @@ resource "peekaping_monitor" "mqtt_example" {
     check_type = "keyword"
     success_keyword = "OK"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 
 # RabbitMQ
@@ -261,6 +309,10 @@ resource "peekaping_monitor" "rabbitmq_example" {
     username = "guest"
     password = "guest"
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 
 # Kafka Producer
@@ -273,6 +325,10 @@ resource "peekaping_monitor" "kafka_example" {
     message = "test message"
     allow_auto_topic_creation = true
   })
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 ```
 

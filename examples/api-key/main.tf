@@ -24,9 +24,10 @@ resource "peekaping_monitor" "website" {
     accepted_statuscodes = ["2XX"]
     authMethod           = "none"
   })
-  interval = 60
-  timeout  = 30
-  active   = true
+  interval       = 60
+  timeout        = 30
+  retry_interval = 60
+  active         = true
 }
 
 # Create a tag
