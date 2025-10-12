@@ -322,7 +322,7 @@ We **love** contributions! This project thrives on community input and collabora
 - [x] **Production Testing** - Battle-tested reliability
 
 ### 🚧 In Progress
-- [ ] **API Key Authentication** - Alternative auth method ([PR pending](https://github.com/0xfurai/peekaping/pull/204))
+- [x] **API Key Authentication** - Alternative auth method ([PR merged](https://github.com/0xfurai/peekaping/pull/204))
 - [ ] **Enhanced Error Handling** - Better user experience
 
 ---
