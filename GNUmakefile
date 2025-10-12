@@ -14,7 +14,7 @@ endif
 # The name of the binary (default is current directory name)
 TARGET := terraform-provider-peekaping
 # These will be provided to the binary
-VERSION ?= 0.1.0
+VERSION ?= 0.1.1
 COMMIT ?= $(shell git rev-parse --short HEAD)
 BUILD_TIME ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 
@@ -41,8 +41,8 @@ build: asdf-install
 .PHONY: install
 install: build
 	@echo "==> Installing $(TARGET)..."
-	@mkdir -p ~/.terraform.d/plugins/registry.terraform.io/tafaust/peekaping/0.1.0/linux_amd64
-	@cp $(TARGET) ~/.terraform.d/plugins/registry.terraform.io/tafaust/peekaping/0.1.0/linux_amd64/
+	@mkdir -p ~/.terraform.d/plugins/registry.terraform.io/tafaust/peekaping/0.1.1/linux_amd64
+	@cp $(TARGET) ~/.terraform.d/plugins/registry.terraform.io/tafaust/peekaping/0.1.1/linux_amd64/
 
 # Run unit tests
 .PHONY: test
@@ -257,6 +257,36 @@ ci-acc-test:
 	fi
 	@TF_ACC=1 go test ./internal/provider -v -timeout 30m -parallel 4
 
+# Version management
+.PHONY: version-bump
+version-bump:
+	@echo "==> Bumping version to $(NEW_VERSION)..."
+	@if [ -z "$(NEW_VERSION)" ]; then \
+		echo "Error: NEW_VERSION must be set. Usage: make version-bump NEW_VERSION=0.1.2"; \
+		exit 1; \
+	fi
+	@echo "Updating GNUmakefile..."
+	@sed -i.bak 's/VERSION ?= .*/VERSION ?= $(NEW_VERSION)/' GNUmakefile
+	@echo "Updating main.go..."
+	@sed -i.bak 's/version string = .*/version string = "$(NEW_VERSION)"/' main.go
+	@echo "Updating terraform-registry-manifest.json..."
+	@sed -i.bak 's/"version": ".*"/"version": "$(NEW_VERSION)"/' terraform-registry-manifest.json
+	@echo "Updating documentation files..."
+	@find docs -name "*.md" -exec sed -i.bak 's/~> 0\.[0-9]\+\.[0-9]\+/~> $(NEW_VERSION)/g' {} \;
+	@find docs -name "*.md" -exec sed -i.bak 's/version = "~> 0\.[0-9]\+\.[0-9]\+"/version = "~> $(NEW_VERSION)"/g' {} \;
+	@echo "Updating example files..."
+	@find examples -name "*.tf" -exec sed -i.bak 's/~> 0\.[0-9]\+\.[0-9]\+/~> $(NEW_VERSION)/g' {} \;
+	@find examples -name "*.tf" -exec sed -i.bak 's/version = "~> 0\.[0-9]\+\.[0-9]\+"/version = "~> $(NEW_VERSION)"/g' {} \;
+	@echo "Updating README.md..."
+	@sed -i.bak 's/Version-0\.[0-9]\+\.[0-9]\+/Version-$(NEW_VERSION)/' README.md
+	@echo "Cleaning up backup files..."
+	@find . -name "*.bak" -delete
+	@echo "✅ Version bumped to $(NEW_VERSION) successfully!"
+
+.PHONY: version-show
+version-show:
+	@echo "Current version: $(VERSION)"
+
 # Show help
 .PHONY: help
 help:
@@ -291,4 +321,6 @@ help:
 	@echo "  copywrite-fix   - Fix copywrite headers"
 	@echo "  docker          - Build Docker image"
 	@echo "  docker-run      - Run Docker container"
+	@echo "  version-bump    - Bump version (requires NEW_VERSION=0.1.2)"
+	@echo "  version-show    - Show current version"
 	@echo "  help            - Show this help message"

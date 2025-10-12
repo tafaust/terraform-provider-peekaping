@@ -3,7 +3,7 @@ terraform {
   required_providers {
     peekaping = {
       source  = "tafaust/peekaping"
-      version = "~> 0.1.0"
+      version = "~> 0.1.1"
     }
   }
   backend "local" {
