@@ -13,7 +13,7 @@
 
 [![Monitor Types](https://img.shields.io/badge/Monitor%20Types-18-brightgreen?style=for-the-badge)](#monitors)
 [![Resources](https://img.shields.io/badge/Resources-6-purple?style=for-the-badge)](#resources-supported)
-[![Peekaping](https://img.shields.io/badge/Peekaping-0.0.39-orange?style=for-the-badge)](https://peekaping.com)
+[![Peekaping](https://img.shields.io/badge/Peekaping-0.0.41-orange?style=for-the-badge)](https://peekaping.com)
 
 </div>
 
