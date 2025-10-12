@@ -14,7 +14,7 @@ endif
 # The name of the binary (default is current directory name)
 TARGET := terraform-provider-peekaping
 # These will be provided to the binary
-VERSION ?= 0.0.3
+VERSION ?= 0.1.0
 COMMIT ?= $(shell git rev-parse --short HEAD)
 BUILD_TIME ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 

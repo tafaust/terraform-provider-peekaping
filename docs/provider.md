@@ -1,15 +1,51 @@
-# Provider Configuration
+# Peekaping Provider
 
-The Peekaping provider is used to interact with the Peekaping monitoring API. The provider needs to be configured with the proper credentials before it can be used.
+The Peekaping provider is used to interact with the Peekaping monitoring API.
 
 ## Example Usage
 
 ```hcl
+terraform {
+  required_providers {
+    peekaping = {
+      source  = "tafaust/peekaping"
+      version = "~> 0.1.0"
+    }
+  }
+}
+
 provider "peekaping" {
-  endpoint = "https://api.peekaping.com"
+  api_key = "your-api-key"
+}
+
+resource "peekaping_monitor" "example" {
+  name = "Example Monitor"
+  type = "http"
+  config = jsonencode({
+    url = "https://example.com"
+  })
+}
+```
+
+## Authentication
+
+The provider supports two authentication methods:
+
+### API Key Authentication (Recommended)
+
+```hcl
+provider "peekaping" {
+  api_key = "your-api-key"
+}
+```
+
+### Email and Password Authentication (Legacy)
+
+```hcl
+provider "peekaping" {
   email    = "your-email@example.com"
   password = "your-password"
-  token    = "your-2fa-token"  # Optional
+  totp_token = "123456"  # Optional, if 2FA is enabled
 }
 ```
 
@@ -19,109 +55,69 @@ provider "peekaping" {
 
 | Name | Description | Type |
 |------|-------------|------|
-| `email` | Email address for Peekaping account login | `string` |
-| `password` | Password for Peekaping account login | `string` |
+| `api_key` | API key for authentication | `string` |
+
+**Alternative**: Instead of `api_key`, you can use `email` and `password` for authentication.
 
 ### Optional Arguments
 
 | Name | Description | Type | Default |
 |------|-------------|------|---------|
 | `endpoint` | Base URL of the Peekaping server | `string` | `"https://api.peekaping.com"` |
-| `token` | 2FA token for login (if 2FA is enabled) | `string` | `null` |
+| `email` | Email address for Peekaping account login | `string` | `null` |
+| `password` | Password for Peekaping account login | `string` | `null` |
+| `totp_token` | TOTP token for 2FA login (if 2FA is enabled) | `string` | `null` |
 
 ## Environment Variables
 
-The provider can be configured using environment variables instead of provider arguments:
+The provider can be configured using environment variables:
 
 | Environment Variable | Description | Corresponding Argument |
 |---------------------|-------------|----------------------|
 | `PEEKAPING_ENDPOINT` | Base URL of the Peekaping server | `endpoint` |
+| `PEEKAPING_API_KEY` | API key for authentication | `api_key` |
 | `PEEKAPING_EMAIL` | Email address for login | `email` |
 | `PEEKAPING_PASSWORD` | Password for login | `password` |
-| `PEEKAPING_TOKEN` | 2FA token for login | `token` |
-
-## Authentication
-
-The provider supports two authentication methods:
-
-### 1. Email and Password
-
-```hcl
-provider "peekaping" {
-  email    = "your-email@example.com"
-  password = "your-password"
-}
-```
-
-### 2. Email, Password, and 2FA Token
-
-```hcl
-provider "peekaping" {
-  email    = "your-email@example.com"
-  password = "your-password"
-  token    = "your-2fa-token"
-}
-```
+| `PEEKAPING_TOTP_TOKEN` | TOTP token for 2FA login | `totp_token` |
 
 ## Configuration Examples
 
-### Basic Configuration
+### Using API Key
 
 ```hcl
-terraform {
-  required_providers {
-    peekaping = {
-      source  = "tafaust/peekaping"
-      version = "~> 0.0.3"
-    }
-  }
-}
-
 provider "peekaping" {
-  email    = "admin@example.com"
-  password = "secure-password"
+  api_key = "pk_live_1234567890abcdef"
 }
 ```
 
-### Custom Endpoint
+### Using Email and Password (Legacy)
 
 ```hcl
 provider "peekaping" {
-  endpoint = "https://monitoring.example.com"
-  email    = "admin@example.com"
-  password = "secure-password"
-}
-```
-
-### With 2FA
-
-```hcl
-provider "peekaping" {
-  endpoint = "https://api.peekaping.com"
-  email    = "admin@example.com"
-  password = "secure-password"
-  token    = "123456"  # 2FA token
+  email      = "admin@example.com"
+  password   = "secure-password"
+  totp_token = "123456"  # optional
 }
 ```
 
 ### Using Environment Variables
 
+In your shell:
 ```bash
-export PEEKAPING_EMAIL="admin@example.com"
-export PEEKAPING_PASSWORD="secure-password"
-export PEEKAPING_TOKEN="123456"  # Optional
+export PEEKAPING_API_KEY="pk_live_1234567890abcdef"
 ```
 
+In your terraform:
 ```hcl
 provider "peekaping" {}
 ```
 
 ## Security Considerations
 
-- **Sensitive Data**: The `password` and `token` arguments are marked as sensitive and will not be displayed in logs
-- **Environment Variables**: Use environment variables for sensitive data in CI/CD pipelines
-- **State Files**: Sensitive data is not stored in Terraform state files
-- **2FA**: Enable 2FA on your Peekaping account for enhanced security
+- The `api_key`, `password`, and `totp_token` arguments are marked as sensitive and will not be displayed in logs
+- Use environment variables for sensitive data in CI/CD pipelines
+- Sensitive data is not stored in Terraform state files
+- API keys provide direct authentication without requiring login credentials
 
 ## Troubleshooting
 
@@ -129,30 +125,8 @@ provider "peekaping" {}
 
 If you encounter authentication errors:
 
-1. **Verify Credentials**: Ensure your email and password are correct
-2. **Check 2FA**: If 2FA is enabled, provide the `token` argument
-3. **Endpoint**: Verify the `endpoint` URL is correct and accessible
-4. **Network**: Check network connectivity to the Peekaping API
-
-### Common Error Messages
-
-- `"authentication failed"`: Invalid email/password combination
-- `"2FA required"`: Account has 2FA enabled, provide `token` argument
-- `"connection refused"`: Check `endpoint` URL and network connectivity
-- `"unauthorized"`: Invalid or expired credentials
-
-## Best Practices
-
-1. **Use Environment Variables**: Store sensitive data in environment variables
-2. **Version Pinning**: Pin the provider version to avoid unexpected changes
-3. **Separate Environments**: Use different provider configurations for different environments
-4. **Secure Storage**: Store sensitive data securely (e.g., using Terraform Cloud variables)
-
-## Migration from Other Providers
-
-If you're migrating from other monitoring providers:
-
-1. **Export Configuration**: Export your current monitoring configuration
-2. **Map Resources**: Map existing resources to Peekaping resource types
-3. **Test Configuration**: Test the configuration in a non-production environment
-4. **Gradual Migration**: Migrate resources gradually to minimize disruption
+1. Verify your API key is valid, not expired and does not exceed usage limit
+2. If using email/password, ensure your credentials are correct
+3. If 2FA is enabled, provide the `totp_token` argument
+4. Verify the `endpoint` URL is correct and accessible
+5. Check network connectivity to the Peekaping API

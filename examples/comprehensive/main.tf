@@ -2,16 +2,16 @@ terraform {
   required_providers {
     peekaping = {
       source  = "tafaust/peekaping"
-      version = "~> 0.0.3"
+      version = "~> 0.1.0"
     }
   }
 }
 
 provider "peekaping" {
-  endpoint = var.endpoint
-  email    = var.email
-  password = var.password
-  token    = var.token
+  endpoint   = var.endpoint
+  email      = var.email
+  password   = var.password
+  totp_token = var.totp_token
 }
 
 # =============================================================================

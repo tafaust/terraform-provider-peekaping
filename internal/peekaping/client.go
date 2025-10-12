@@ -24,7 +24,8 @@ type Client struct {
 	refreshToken string
 	email        string
 	password     string
-	token        string
+	totpToken    string
+	apiKey       string
 }
 
 type Option func(*Client)
@@ -33,8 +34,12 @@ func WithCredentials(email, pass string) Option {
 	return func(c *Client) { c.email, c.password = email, pass }
 }
 
-func WithToken(token string) Option {
-	return func(c *Client) { c.token = token }
+func WithTotpToken(token string) Option {
+	return func(c *Client) { c.totpToken = token }
+}
+
+func WithApiKey(apiKey string) Option {
+	return func(c *Client) { c.apiKey = apiKey }
 }
 
 func New(endpoint string, opts ...Option) *Client {
@@ -49,9 +54,9 @@ func New(endpoint string, opts ...Option) *Client {
 }
 
 type loginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Token    string `json:"token,omitempty"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	TotpToken string `json:"token,omitempty"`
 }
 
 type loginResponse struct {
@@ -131,7 +136,7 @@ type proxyResponse struct {
 }
 
 func (c *Client) Login(ctx context.Context) error {
-	body := loginRequest{Email: c.email, Password: c.password, Token: c.token}
+	body := loginRequest{Email: c.email, Password: c.password, TotpToken: c.totpToken}
 	req, err := c.newReq(ctx, http.MethodPost, "/auth/login", body)
 	if err != nil {
 		return err
@@ -159,7 +164,9 @@ func (c *Client) newReq(ctx context.Context, method, path string, body any) (*ht
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if c.accessToken != "" {
+	if c.apiKey != "" {
+		req.Header.Set("Authorization", c.apiKey)
+	} else if c.accessToken != "" {
 		req.Header.Set("Authorization", "Bearer "+c.accessToken)
 	}
 

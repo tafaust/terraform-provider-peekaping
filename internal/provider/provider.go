@@ -33,10 +33,11 @@ type PeekapingProvider struct {
 }
 
 type providerModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
-	Email    types.String `tfsdk:"email"`
-	Password types.String `tfsdk:"password"`
-	Token    types.String `tfsdk:"token"`
+	Endpoint  types.String `tfsdk:"endpoint"`
+	Email     types.String `tfsdk:"email"`
+	Password  types.String `tfsdk:"password"`
+	TotpToken types.String `tfsdk:"totp_token"`
+	ApiKey    types.String `tfsdk:"api_key"`
 }
 
 func (p *PeekapingProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -60,10 +61,15 @@ func (p *PeekapingProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				Sensitive:   true,
 				Description: "Password for login.",
 			},
-			"token": schema.StringAttribute{
+			"totp_token": schema.StringAttribute{
 				Optional:    true,
 				Sensitive:   true,
-				Description: "2FA token for login (if 2FA is enabled).",
+				Description: "TOTP token for 2FA login (if 2FA is enabled).",
+			},
+			"api_key": schema.StringAttribute{
+				Optional:    true,
+				Sensitive:   true,
+				Description: "API key for authentication (alternative to email/password).",
 			},
 		},
 	}
@@ -86,19 +92,27 @@ func (p *PeekapingProvider) Configure(ctx context.Context, req provider.Configur
 
 	email := os.Getenv("PEEKAPING_EMAIL")
 	password := os.Getenv("PEEKAPING_PASSWORD")
-	token := os.Getenv("PEEKAPING_TOKEN")
+	totpToken := os.Getenv("PEEKAPING_TOTP_TOKEN")
+	apiKey := os.Getenv("PEEKAPING_API_KEY")
 	if !config.Email.IsNull() {
 		email = config.Email.ValueString()
 	}
 	if !config.Password.IsNull() {
 		password = config.Password.ValueString()
 	}
-	if !config.Token.IsNull() {
-		token = config.Token.ValueString()
+	if !config.TotpToken.IsNull() {
+		totpToken = config.TotpToken.ValueString()
+	}
+	if !config.ApiKey.IsNull() {
+		apiKey = config.ApiKey.ValueString()
 	}
 
-	client := peekaping.New(endpoint, peekaping.WithCredentials(email, password), peekaping.WithToken(token))
-	if email != "" && password != "" {
+	client := peekaping.New(endpoint, peekaping.WithCredentials(email, password), peekaping.WithTotpToken(totpToken), peekaping.WithApiKey(apiKey))
+
+	// If API key is provided, skip login
+	if apiKey != "" {
+		tflog.Info(ctx, "using API key authentication")
+	} else if email != "" && password != "" {
 		if err := client.Login(ctx); err != nil {
 			resp.Diagnostics.AddError("login failed", err.Error())
 			return

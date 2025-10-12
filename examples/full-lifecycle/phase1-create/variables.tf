@@ -15,8 +15,8 @@ variable "password" {
   sensitive   = true
 }
 
-variable "token" {
-  description = "2FA token (if enabled)"
+variable "totp_token" {
+  description = "TOTP token (if 2FA is enabled)"
   type        = string
   sensitive   = true
   default     = null

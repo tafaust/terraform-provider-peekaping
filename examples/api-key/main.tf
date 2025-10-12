@@ -7,13 +7,13 @@ terraform {
   }
 }
 
+# Example using API key authentication
 provider "peekaping" {
   endpoint = var.endpoint
-  email    = var.email
-  password = var.password
+  api_key  = var.api_key
 }
 
-# Create a simple HTTP monitor
+# Create a simple HTTP monitor using API key authentication
 resource "peekaping_monitor" "website" {
   name = "Website Homepage"
   type = "http"
@@ -34,18 +34,4 @@ resource "peekaping_tag" "production" {
   name        = "Production"
   color       = "#3B82F6"
   description = "Production environment monitors"
-}
-
-# Create an email notification
-resource "peekaping_notification" "email_alerts" {
-  name = "Email Alerts"
-  type = "smtp"
-  config = jsonencode({
-    smtp_host = "smtp.example.com"
-    smtp_port = 587
-    username  = "alerts@example.com"
-    password  = "password"
-    from      = "alerts@example.com"
-    to        = "admin@example.com"
-  })
 }

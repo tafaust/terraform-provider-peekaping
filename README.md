@@ -8,7 +8,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/tafaust/terraform-provider-peekaping?style=for-the-badge&logo=github)](https://github.com/tafaust/terraform-provider-peekaping/stargazers)
 [![Support on Ko-fi](https://img.shields.io/badge/Support%20on-Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/tafaust)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.0.3-blue?style=for-the-badge)](https://github.com/tafaust/terraform-provider-peekaping/releases)
+[![Version](https://img.shields.io/badge/Version-0.1.0-blue?style=for-the-badge)](https://github.com/tafaust/terraform-provider-peekaping/releases)
 [![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org)
 
 [![Monitor Types](https://img.shields.io/badge/Monitor%20Types-18-brightgreen?style=for-the-badge)](#monitors)
@@ -71,7 +71,7 @@ terraform {
   required_providers {
     peekaping = {
       source  = "tafaust/peekaping"
-      version = "~> 0.0.3"
+      version = "~> 0.1.0"
     }
   }
 }
