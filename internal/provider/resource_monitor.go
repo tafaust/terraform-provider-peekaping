@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -333,41 +335,65 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"interval": schema.Int64Attribute{
 				Optional:    true,
-				Description: "Monitor interval in seconds (minimum 20)",
+				Computed:    true,
+				Description: "Monitor interval in seconds (minimum 20). Defaults to 60.",
 				Validators: []validator.Int64{
 					monitorIntervalValidator{},
+				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"active": schema.BoolAttribute{
 				Optional:    true,
-				Description: "Whether the monitor is active",
+				Computed:    true,
+				Description: "Whether the monitor is active. Defaults to true.",
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"timeout": schema.Int64Attribute{
 				Optional:    true,
-				Description: "Monitor timeout in seconds (minimum 16)",
+				Computed:    true,
+				Description: "Monitor timeout in seconds (minimum 16). Must be less than 80% of interval. Defaults to 30.",
 				Validators: []validator.Int64{
 					monitorTimeoutValidator{},
+				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"max_retries": schema.Int64Attribute{
 				Optional:    true,
-				Description: "Maximum retries before marking as down",
+				Computed:    true,
+				Description: "Maximum retries before marking as down. Defaults to 3.",
 				Validators: []validator.Int64{
 					monitorMaxRetriesValidator{},
+				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"retry_interval": schema.Int64Attribute{
 				Optional:    true,
-				Description: "Retry interval in seconds (minimum 20)",
+				Computed:    true,
+				Description: "Retry interval in seconds (minimum 20). Defaults to 60.",
 				Validators: []validator.Int64{
 					monitorRetryIntervalValidator{},
+				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"resend_interval": schema.Int64Attribute{
 				Optional:    true,
-				Description: "Resend notification if down X times consecutively",
+				Computed:    true,
+				Description: "Resend notification if down X times consecutively. Defaults to 10.",
 				Validators: []validator.Int64{
 					monitorResendIntervalValidator{},
+				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"proxy_id": schema.StringAttribute{
@@ -442,32 +468,49 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		"tag_ids": toStrSlice(plan.TagIDs),
 	})
 
-	// Handle active field - use plan value or default to true
+	// Handle default values
 	active := true // Default value
 	if !plan.Active.IsNull() {
 		active = plan.Active.ValueBool()
+	}
+
+	interval := int64(60) // Default value
+	if !plan.Interval.IsNull() {
+		interval = plan.Interval.ValueInt64()
+	}
+
+	timeout := int64(30) // Default value
+	if !plan.Timeout.IsNull() {
+		timeout = plan.Timeout.ValueInt64()
+	}
+
+	maxRetries := int64(3) // Default value
+	if !plan.MaxRetries.IsNull() {
+		maxRetries = plan.MaxRetries.ValueInt64()
+	}
+
+	retryInterval := int64(60) // Default value
+	if !plan.RetryInterval.IsNull() {
+		retryInterval = plan.RetryInterval.ValueInt64()
+	}
+
+	resendInterval := int64(10) // Default value
+	if !plan.ResendInterval.IsNull() {
+		resendInterval = plan.ResendInterval.ValueInt64()
 	}
 
 	in := peekaping.MonitorCreate{
 		Name:            plan.Name.ValueString(),
 		Type:            peekaping.MonitorType(plan.Type.ValueString()),
 		Config:          plan.Config.ValueString(), // jsontypes.Normalized handles normalization automatically
-		Interval:        plan.Interval.ValueInt64(),
+		Interval:        interval,
+		Timeout:         timeout,
+		MaxRetries:      maxRetries,
+		RetryInterval:   retryInterval,
+		ResendInterval:  resendInterval,
 		Active:          active,
 		NotificationIDs: notificationIDs,         // Always send, even if empty (API requires it)
 		TagIDs:          toStrSlice(plan.TagIDs), // Always send, even if empty (API requires it)
-	}
-	if !plan.Timeout.IsNull() {
-		in.Timeout = plan.Timeout.ValueInt64()
-	}
-	if !plan.MaxRetries.IsNull() {
-		in.MaxRetries = plan.MaxRetries.ValueInt64()
-	}
-	if !plan.RetryInterval.IsNull() {
-		in.RetryInterval = plan.RetryInterval.ValueInt64()
-	}
-	if !plan.ResendInterval.IsNull() {
-		in.ResendInterval = plan.ResendInterval.ValueInt64()
 	}
 	if !plan.ProxyID.IsNull() {
 		in.ProxyID = plan.ProxyID.ValueString()
