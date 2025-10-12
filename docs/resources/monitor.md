@@ -654,8 +654,28 @@ Push monitors don't require a configuration object. They use the `push_token` fi
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `connection_string` | string | Yes | MySQL connection string |
+| `connection_string` | string | Yes | MySQL connection string. Format: `mysql://username:password@host:port/database` |
 | `query` | string | No | Custom query to execute |
+
+#### Connection String Examples
+
+```json
+// Local MySQL
+{
+  "connection_string": "mysql://root:password@localhost:3306/mydb"
+}
+
+// Remote MySQL with SSL
+{
+  "connection_string": "mysql://user:pass@db.example.com:3306/production?ssl=true"
+}
+
+// MySQL with custom query
+{
+  "connection_string": "mysql://admin:secret@mysql.internal:3306/appdb",
+  "query": "SELECT COUNT(*) FROM users WHERE active = 1"
+}
+```
 
 ### PostgreSQL Monitor
 
@@ -670,8 +690,28 @@ Push monitors don't require a configuration object. They use the `push_token` fi
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `database_connection_string` | string | Yes | PostgreSQL connection string |
+| `database_connection_string` | string | Yes | PostgreSQL connection string. Format: `postgres://username:password@host:port/database` |
 | `database_query` | string | No | Custom query to execute |
+
+#### Connection String Examples
+
+```json
+// Local PostgreSQL
+{
+  "database_connection_string": "postgres://postgres:password@localhost:5432/mydb"
+}
+
+// Remote PostgreSQL with SSL
+{
+  "database_connection_string": "postgres://user:pass@db.example.com:5432/production?sslmode=require"
+}
+
+// PostgreSQL with custom query
+{
+  "database_connection_string": "postgres://admin:secret@postgres.internal:5432/appdb",
+  "database_query": "SELECT COUNT(*) FROM sessions WHERE expires_at > NOW()"
+}
+```
 
 ### SQL Server Monitor
 
@@ -686,8 +726,28 @@ Push monitors don't require a configuration object. They use the `push_token` fi
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `database_connection_string` | string | Yes | SQL Server connection string |
+| `database_connection_string` | string | Yes | SQL Server connection string. Format: `Server=host,port;Database=db;User Id=user;Password=pass;Encrypt=false;TrustServerCertificate=true;Connection Timeout=30` |
 | `database_query` | string | No | Custom query to execute |
+
+#### Connection String Examples
+
+```json
+// Local SQL Server
+{
+  "database_connection_string": "Server=localhost,1433;Database=mydb;User Id=sa;Password=password;Encrypt=false;TrustServerCertificate=true;Connection Timeout=30"
+}
+
+// Remote SQL Server with encryption
+{
+  "database_connection_string": "Server=sql.example.com,1433;Database=production;User Id=appuser;Password=secret;Encrypt=true;TrustServerCertificate=false;Connection Timeout=30"
+}
+
+// SQL Server with custom query
+{
+  "database_connection_string": "Server=mssql.internal,1433;Database=appdb;User Id=monitor;Password=monitor123;Encrypt=false;TrustServerCertificate=true;Connection Timeout=30",
+  "database_query": "SELECT COUNT(*) FROM Orders WHERE CreatedDate > DATEADD(day, -1, GETDATE())"
+}
+```
 
 ### MongoDB Monitor
 
@@ -704,10 +764,37 @@ Push monitors don't require a configuration object. They use the `push_token` fi
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `connectionString` | string | Yes | MongoDB connection string |
+| `connectionString` | string | Yes | MongoDB connection string. Format: `mongodb://username:password@host:port/database` |
 | `command` | string | No | Custom command to execute |
 | `jsonPath` | string | No | JSONPath to extract value |
 | `expectedValue` | string | No | Expected value |
+
+#### Connection String Examples
+
+```json
+// Local MongoDB
+{
+  "connectionString": "mongodb://admin:password@localhost:27017/mydb"
+}
+
+// Remote MongoDB with authentication
+{
+  "connectionString": "mongodb://user:pass@mongo.example.com:27017/production"
+}
+
+// MongoDB with custom command and validation
+{
+  "connectionString": "mongodb://monitor:secret@mongodb.internal:27017/appdb",
+  "command": "db.stats()",
+  "jsonPath": "$.ok",
+  "expectedValue": "1"
+}
+
+// MongoDB replica set
+{
+  "connectionString": "mongodb://user:pass@mongo1:27017,mongo2:27017,mongo3:27017/appdb?replicaSet=rs0"
+}
+```
 
 ### Redis Monitor
 
@@ -725,11 +812,39 @@ Push monitors don't require a configuration object. They use the `push_token` fi
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `databaseConnectionString` | string | Yes | Redis connection string |
+| `databaseConnectionString` | string | Yes | Redis connection string. Format: `redis://username:password@host:port/database` |
 | `ignoreTls` | boolean | No | Ignore TLS certificate errors (default: false) |
 | `caCert` | string | No | CA certificate for TLS |
 | `clientCert` | string | No | Client certificate for TLS |
 | `clientKey` | string | No | Client private key for TLS |
+
+#### Connection String Examples
+
+```json
+// Local Redis
+{
+  "databaseConnectionString": "redis://:password@localhost:6379/0"
+}
+
+// Remote Redis with authentication
+{
+  "databaseConnectionString": "redis://user:pass@redis.example.com:6379/0"
+}
+
+// Redis with TLS certificates
+{
+  "databaseConnectionString": "rediss://user:pass@redis-secure.example.com:6380/0",
+  "ignoreTls": false,
+  "caCert": "-----BEGIN CERTIFICATE-----\nMII...\n-----END CERTIFICATE-----",
+  "clientCert": "-----BEGIN CERTIFICATE-----\nMII...\n-----END CERTIFICATE-----",
+  "clientKey": "-----BEGIN PRIVATE KEY-----\nMII...\n-----END PRIVATE KEY-----"
+}
+
+// Redis cluster
+{
+  "databaseConnectionString": "redis://user:pass@redis1:6379,redis2:6379,redis3:6379/0"
+}
+```
 
 ### MQTT Monitor
 
