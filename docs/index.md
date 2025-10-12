@@ -35,9 +35,7 @@ terraform {
 
    ```hcl
    provider "peekaping" {
-     endpoint = "https://api.peekaping.com"
-     email    = "your-email@example.com"
-     password = "your-password"
+     api_key = "your-api-key"
    }
    ```
 
@@ -50,8 +48,10 @@ terraform {
      config = jsonencode({
        url = "https://example.com"
      })
-     interval = 60
-     timeout  = 30
+     interval       = 60
+     timeout        = 30
+     retry_interval = 60
+     active         = true
    }
    ```
 
@@ -64,23 +64,83 @@ terraform {
 
 ## Provider Configuration
 
+### Authentication
+
+The provider supports two authentication methods:
+
+#### API Key Authentication (Recommended)
+
+```hcl
+provider "peekaping" {
+  api_key = "your-api-key"
+}
+```
+
+#### Email and Password Authentication (Legacy)
+
+```hcl
+provider "peekaping" {
+  email      = "your-email@example.com"
+  password   = "your-password"
+  totp_token = "123456"  # Optional, if 2FA is enabled
+}
+```
+
 ### Arguments
 
-| Name       | Description                             | Type     | Default                       | Required |
-| ---------- | --------------------------------------- | -------- | ----------------------------- | :------: |
-| `endpoint` | Base URL of the Peekaping server        | `string` | `"https://api.peekaping.com"` |    no    |
-| `email`    | Email for login                         | `string` | n/a                           |   yes    |
-| `password` | Password for login                      | `string` | n/a                           |   yes    |
-| `token`    | 2FA token for login (if 2FA is enabled) | `string` | n/a                           |    no    |
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| `api_key` | API key for authentication | `string` | n/a | **Yes** (or email/password) |
+| `endpoint` | Base URL of the Peekaping server | `string` | `"https://api.peekaping.com"` | no |
+| `email` | Email address for Peekaping account login | `string` | n/a | **Yes** (or api_key) |
+| `password` | Password for Peekaping account login | `string` | n/a | **Yes** (or api_key) |
+| `totp_token` | TOTP token for 2FA login (if 2FA is enabled) | `string` | n/a | no |
+
+**Note**: You must provide either `api_key` OR `email` and `password` for authentication.
 
 ### Environment Variables
 
 You can also configure the provider using environment variables:
 
-- `PEEKAPING_ENDPOINT`
-- `PEEKAPING_EMAIL`
-- `PEEKAPING_PASSWORD`
-- `PEEKAPING_TOKEN`
+| Environment Variable | Description | Corresponding Argument |
+|---------------------|-------------|----------------------|
+| `PEEKAPING_ENDPOINT` | Base URL of the Peekaping server | `endpoint` |
+| `PEEKAPING_API_KEY` | API key for authentication | `api_key` |
+| `PEEKAPING_EMAIL` | Email address for login | `email` |
+| `PEEKAPING_PASSWORD` | Password for login | `password` |
+| `PEEKAPING_TOTP_TOKEN` | TOTP token for 2FA login | `totp_token` |
+
+### Configuration Examples
+
+#### Using API Key
+
+```hcl
+provider "peekaping" {
+  api_key = "pk_live_1234567890abcdef"
+}
+```
+
+#### Using Email and Password (Legacy)
+
+```hcl
+provider "peekaping" {
+  email      = "admin@example.com"
+  password   = "secure-password"
+  totp_token = "123456"  # optional
+}
+```
+
+#### Using Environment Variables
+
+In your shell:
+```bash
+export PEEKAPING_API_KEY="pk_live_1234567890abcdef"
+```
+
+In your terraform:
+```hcl
+provider "peekaping" {}
+```
 
 ## Resources
 
@@ -101,12 +161,12 @@ resource "peekaping_monitor" "api_health" {
     accepted_statuscodes = ["2XX"]
     authMethod           = "none"
   })
-  interval         = 60
-  timeout          = 30
-  max_retries      = 3
-  retry_interval   = 60
-  resend_interval  = 10
-  active           = true
+  interval        = 60
+  timeout         = 30
+  max_retries     = 3
+  retry_interval  = 60
+  resend_interval = 10
+  active          = true
   notification_ids = [peekaping_notification.email_alerts.id]
   tag_ids          = [peekaping_tag.production.id]
   proxy_id         = peekaping_proxy.monitoring_proxy.id
@@ -248,6 +308,25 @@ config = jsonencode({
 ### State Management
 
 The provider uses state as ground truth to handle API inconsistencies, ensuring reliable Terraform operations.
+
+## Security Considerations
+
+- The `api_key`, `password`, and `totp_token` arguments are marked as sensitive and will not be displayed in logs
+- Use environment variables for sensitive data in CI/CD pipelines
+- Sensitive data is not stored in Terraform state files
+- API keys provide direct authentication without requiring login credentials
+
+## Troubleshooting
+
+### Authentication Issues
+
+If you encounter authentication errors:
+
+1. Verify your API key is valid, not expired and does not exceed usage limit
+2. If using email/password, ensure your credentials are correct
+3. If 2FA is enabled, provide the `totp_token` argument
+4. Verify the `endpoint` URL is correct and accessible
+5. Check network connectivity to the Peekaping API
 
 ## Support
 
