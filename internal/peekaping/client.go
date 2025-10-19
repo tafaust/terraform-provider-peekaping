@@ -165,7 +165,7 @@ func (c *Client) newReq(ctx context.Context, method, path string, body any) (*ht
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if c.apiKey != "" {
-		req.Header.Set("Authorization", c.apiKey)
+		req.Header.Set("X-API-Key", c.apiKey)
 	} else if c.accessToken != "" {
 		req.Header.Set("Authorization", "Bearer "+c.accessToken)
 	}
