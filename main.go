@@ -17,7 +17,7 @@ import (
 // Run "go build -ldflags="-X main.version=x.y.z"" to set the version.
 var (
 	// version is set via build flag -ldflags="-X main.version=x.y.z".
-	version string = "0.1.1"
+	version string = "0.2.0"
 )
 
 func main() {
