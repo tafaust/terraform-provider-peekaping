@@ -406,11 +406,13 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"notification_ids": schema.ListAttribute{
 				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 				Description: "List of notification channel IDs",
 			},
 			"tag_ids": schema.ListAttribute{
 				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 				Description: "List of tag IDs",
 			},
@@ -768,9 +770,25 @@ func setModelFromMonitor(ctx context.Context, m *monitorResourceModel, from *pee
 		m.UpdatedAt = types.StringValue(from.UpdatedAt)
 	}
 
-	// Handle TagIDs and NotificationIDs - preserve plan values, don't override with API response
-	// The API response may not match the plan, so we preserve the plan's values
-	// This ensures Terraform state consistency
+	// Handle TagIDs - populate from API response
+	if from.TagIDs != nil {
+		m.TagIDs = make([]types.String, len(from.TagIDs))
+		for i, id := range from.TagIDs {
+			m.TagIDs[i] = types.StringValue(id)
+		}
+	} else {
+		m.TagIDs = []types.String{}
+	}
+
+	// Handle NotificationIDs - populate from API response
+	if from.NotificationIDs != nil {
+		m.NotificationIDs = make([]types.String, len(from.NotificationIDs))
+		for i, id := range from.NotificationIDs {
+			m.NotificationIDs[i] = types.StringValue(id)
+		}
+	} else {
+		m.NotificationIDs = []types.String{}
+	}
 }
 
 // setModelFromMonitorWithState handles field mapping with state comparison to resolve API inconsistencies.
@@ -875,18 +893,22 @@ func setModelFromMonitorWithState(m *monitorResourceModel, from *peekaping.Monit
 		m.UpdatedAt = types.StringValue(from.UpdatedAt)
 	}
 
-	// Handle TagIDs - API doesn't return this field, so always preserve current state
-	// These fields are provider-managed only and should never change based on API response
-	if currentState != nil && currentState.TagIDs != nil {
-		m.TagIDs = currentState.TagIDs
+	// Handle TagIDs - populate from API response
+	if from.TagIDs != nil {
+		m.TagIDs = make([]types.String, len(from.TagIDs))
+		for i, id := range from.TagIDs {
+			m.TagIDs[i] = types.StringValue(id)
+		}
 	} else {
 		m.TagIDs = []types.String{}
 	}
 
-	// Handle NotificationIDs - API doesn't return this field, so always preserve current state
-	// These fields are provider-managed only and should never change based on API response
-	if currentState != nil && currentState.NotificationIDs != nil {
-		m.NotificationIDs = currentState.NotificationIDs
+	// Handle NotificationIDs - populate from API response
+	if from.NotificationIDs != nil {
+		m.NotificationIDs = make([]types.String, len(from.NotificationIDs))
+		for i, id := range from.NotificationIDs {
+			m.NotificationIDs[i] = types.StringValue(id)
+		}
 	} else {
 		m.NotificationIDs = []types.String{}
 	}
