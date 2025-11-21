@@ -521,12 +521,26 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		in.PushToken = plan.PushToken.ValueString()
 	}
 
+	// Save user-specified tag_ids and notification_ids before API call
+	// The API may return different IDs than what was sent, causing "inconsistent result" errors
+	userTagIDs := plan.TagIDs
+	userNotificationIDs := plan.NotificationIDs
+
 	m, err := r.client.CreateMonitor(ctx, in)
 	if err != nil {
 		resp.Diagnostics.AddError("create monitor failed", err.Error())
 		return
 	}
 	setModelFromMonitor(ctx, &plan, m)
+
+	// Restore user-specified tag_ids and notification_ids to prevent inconsistent result error
+	// The API may return different IDs (e.g., internal IDs) than what the user specified
+	if userTagIDs != nil {
+		plan.TagIDs = userTagIDs
+	}
+	if userNotificationIDs != nil {
+		plan.NotificationIDs = userNotificationIDs
+	}
 
 	// Preserve the plan's active value to maintain Terraform state consistency
 	// The API may return different defaults than what the plan specifies
@@ -638,6 +652,11 @@ func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	// Save user-specified tag_ids and notification_ids before API call
+	// The API may return different IDs than what was sent, causing "inconsistent result" errors
+	userTagIDs := plan.TagIDs
+	userNotificationIDs := plan.NotificationIDs
+
 	// Fetch the monitor again to get the current status and other computed fields
 	// The update response might not reflect the current monitoring status
 	fullMonitor, err := r.client.GetMonitor(ctx, state.ID.ValueString())
@@ -652,6 +671,16 @@ func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest
 	// Note: We don't set CreatedAt/UpdatedAt here as they can change during updates
 
 	setModelFromMonitorWithState(&plan, fullMonitor, &state)
+
+	// Restore user-specified tag_ids and notification_ids to prevent inconsistent result error
+	// The API may return different IDs (e.g., internal IDs) than what the user specified
+	if userTagIDs != nil {
+		plan.TagIDs = userTagIDs
+	}
+	if userNotificationIDs != nil {
+		plan.NotificationIDs = userNotificationIDs
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
