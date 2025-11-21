@@ -377,6 +377,7 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"custom_css": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Custom CSS for the status page",
 				PlanModifiers: []planmodifier.String{
@@ -384,6 +385,7 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"google_analytics_tag_id": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Google Analytics tag ID",
 				PlanModifiers: []planmodifier.String{
@@ -398,6 +400,7 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"search_engine_index": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether to allow search engine indexing",
 				PlanModifiers: []planmodifier.Bool{
@@ -405,6 +408,7 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"show_certificate_expiry": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether to show certificate expiry information",
 				PlanModifiers: []planmodifier.Bool{
@@ -412,6 +416,7 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"show_powered_by": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether to show 'Powered by' text",
 				PlanModifiers: []planmodifier.Bool{
@@ -419,6 +424,7 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"show_tags": schema.BoolAttribute{
+				Optional:    true,
 				Computed:    true,
 				Description: "Whether to show tags on the status page",
 				PlanModifiers: []planmodifier.Bool{
@@ -426,6 +432,7 @@ func (r *StatusPageResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"password": schema.StringAttribute{
+				Optional:    true,
 				Computed:    true,
 				Sensitive:   true,
 				Description: "Password for the status page (if protected)",
@@ -479,15 +486,22 @@ func (r *StatusPageResource) Create(ctx context.Context, req resource.CreateRequ
 	})
 
 	in := peekaping.StatusPageCreate{
-		Title:       plan.Title.ValueString(),
-		Description: plan.Description.ValueString(),
-		Slug:        plan.Slug.ValueString(),
-		Domains:     toStrSliceFromStringSlice(plan.Domains),
-		MonitorIDs:  toStrSliceFromList(plan.MonitorIDs),
-		Published:   plan.Published.ValueBool(),
-		Theme:       plan.Theme.ValueString(),
-		Icon:        plan.Icon.ValueString(),
-		FooterText:  plan.FooterText.ValueString(),
+		Title:                 plan.Title.ValueString(),
+		Description:           plan.Description.ValueString(),
+		Slug:                  plan.Slug.ValueString(),
+		Domains:               toStrSliceFromStringSlice(plan.Domains),
+		MonitorIDs:            toStrSliceFromList(plan.MonitorIDs),
+		Published:             plan.Published.ValueBool(),
+		Theme:                 plan.Theme.ValueString(),
+		Icon:                  plan.Icon.ValueString(),
+		FooterText:            plan.FooterText.ValueString(),
+		CustomCSS:             plan.CustomCSS.ValueString(),
+		GoogleAnalyticsTagID:  plan.GoogleAnalyticsTagID.ValueString(),
+		SearchEngineIndex:     plan.SearchEngineIndex.ValueBool(),
+		ShowCertificateExpiry: plan.ShowCertificateExpiry.ValueBool(),
+		ShowPoweredBy:         plan.ShowPoweredBy.ValueBool(),
+		ShowTags:              plan.ShowTags.ValueBool(),
+		Password:              plan.Password.ValueString(),
 	}
 
 	sp, err := r.client.CreateStatusPage(ctx, in)
@@ -563,8 +577,34 @@ func (r *StatusPageResource) Update(ctx context.Context, req resource.UpdateRequ
 		v := plan.FooterText.ValueString()
 		upd.FooterText = &v
 	}
-	// custom_css, google_analytics_tag_id, monitor_ids, password, and boolean flags
-	// are computed by the API, not updated by user
+	if !plan.CustomCSS.IsNull() {
+		v := plan.CustomCSS.ValueString()
+		upd.CustomCSS = &v
+	}
+	if !plan.GoogleAnalyticsTagID.IsNull() {
+		v := plan.GoogleAnalyticsTagID.ValueString()
+		upd.GoogleAnalyticsTagID = &v
+	}
+	if !plan.SearchEngineIndex.IsNull() {
+		v := plan.SearchEngineIndex.ValueBool()
+		upd.SearchEngineIndex = &v
+	}
+	if !plan.ShowCertificateExpiry.IsNull() {
+		v := plan.ShowCertificateExpiry.ValueBool()
+		upd.ShowCertificateExpiry = &v
+	}
+	if !plan.ShowPoweredBy.IsNull() {
+		v := plan.ShowPoweredBy.ValueBool()
+		upd.ShowPoweredBy = &v
+	}
+	if !plan.ShowTags.IsNull() {
+		v := plan.ShowTags.ValueBool()
+		upd.ShowTags = &v
+	}
+	if !plan.Password.IsNull() {
+		v := plan.Password.ValueString()
+		upd.Password = &v
+	}
 
 	// Use state.ID instead of plan.ID
 	_, err := r.client.UpdateStatusPage(ctx, state.ID.ValueString(), upd)
