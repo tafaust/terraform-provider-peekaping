@@ -10,259 +10,301 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// TestAccMonitorResource_WithTag tests creating a tag and a monitor with that tag_id.
-// This verifies that user-specified tag_ids are preserved after apply (fix for "inconsistent result" error).
-func TestAccMonitorResource_WithTag(t *testing.T) {
+// TestAccMonitorResource_WithTagsAndNotifications tests that tag_ids and notification_ids
+// are properly preserved across Create, Read, and Update operations, even if the API
+// doesn't reliably return these fields.
+func TestAccMonitorResource_WithTagsAndNotifications(t *testing.T) {
 	resourceName := "peekaping_monitor.test"
 	tagResourceName := "peekaping_tag.test"
+	notificationResourceName := "peekaping_notification.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Create tag and monitor with tag_id
+			// Create monitor with tags and notifications
 			{
-				Config: testAccMonitorResourceConfig_WithTag("test-tag", "test-monitor-with-tag"),
+				Config: testAccMonitorResourceConfig_WithTagsAndNotifications("test-monitor-with-tags", "https://httpbin.org/status/200"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Check tag was created
-					resource.TestCheckResourceAttr(tagResourceName, "name", "test-tag"),
-					resource.TestCheckResourceAttrSet(tagResourceName, "id"),
-					// Check monitor was created with tag_id
-					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-with-tag"),
+					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-with-tags"),
+					resource.TestCheckResourceAttr(resourceName, "type", "http"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					// Verify tag_ids list has one element
+					// Verify tag_ids is set
 					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "1"),
-					// Verify the tag_id matches the created tag
 					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.0", tagResourceName, "id"),
+					// Verify notification_ids is set
+					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.0", notificationResourceName, "id"),
 				),
 			},
-			// ImportState testing
+			// Import and verify tag_ids and notification_ids are preserved
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// Update: add a second tag
+			// Update the monitor name and verify tag_ids and notification_ids are preserved
 			{
-				Config: testAccMonitorResourceConfig_WithMultipleTags("test-tag", "test-tag-2", "test-monitor-with-tag"),
+				Config: testAccMonitorResourceConfig_WithTagsAndNotifications("test-monitor-with-tags-updated", "https://httpbin.org/status/200"),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-with-tags-updated"),
+					// Verify tag_ids is still set after update
+					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.0", tagResourceName, "id"),
+					// Verify notification_ids is still set after update
+					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.0", notificationResourceName, "id"),
+				),
+			},
+			// Update the monitor config and verify tag_ids and notification_ids are preserved
+			{
+				Config: testAccMonitorResourceConfig_WithTagsAndNotifications("test-monitor-with-tags-updated", "https://httpbin.org/status/201"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrWith(resourceName, "config", func(value string) error {
+						return testAccCheckJSONContains(value, map[string]interface{}{
+							"url": "https://httpbin.org/status/201",
+						})
+					}),
+					// Verify tag_ids is still set after config update
+					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.0", tagResourceName, "id"),
+					// Verify notification_ids is still set after config update
+					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.0", notificationResourceName, "id"),
+				),
+			},
+		},
+	})
+}
+
+// TestAccMonitorResource_WithMultipleTagsAndNotifications tests monitors with multiple
+// tags and notifications to ensure arrays are properly handled.
+func TestAccMonitorResource_WithMultipleTagsAndNotifications(t *testing.T) {
+	resourceName := "peekaping_monitor.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create monitor with multiple tags and notifications
+			{
+				Config: testAccMonitorResourceConfig_WithMultipleTagsAndNotifications("test-monitor-multiple", "https://httpbin.org/status/200"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-multiple"),
+					resource.TestCheckResourceAttr(resourceName, "type", "http"),
+					// Verify we have 2 tags
 					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "2"),
-					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.0", "peekaping_tag.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.0", "peekaping_tag.test1", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.1", "peekaping_tag.test2", "id"),
+					// Verify we have 2 notifications
+					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "2"),
+					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.0", "peekaping_notification.test1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.1", "peekaping_notification.test2", "id"),
 				),
 			},
-			// Update: remove all tags
+			// Update to remove one tag and one notification
 			{
-				Config: testAccMonitorResourceConfig_WithoutTags("test-monitor-with-tag"),
+				Config: testAccMonitorResourceConfig_WithSingleTagAndNotification("test-monitor-multiple", "https://httpbin.org/status/200"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "0"),
-				),
-			},
-		},
-	})
-}
-
-// TestAccMonitorResource_WithNotification tests creating a notification and a monitor with that notification_id.
-// This verifies that user-specified notification_ids are preserved after apply.
-func TestAccMonitorResource_WithNotification(t *testing.T) {
-	resourceName := "peekaping_monitor.test"
-	notificationResourceName := "peekaping_notification.test"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccMonitorResourceConfig_WithNotification("test-notification", "test-monitor-with-notification"),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Check notification was created
-					resource.TestCheckResourceAttr(notificationResourceName, "name", "test-notification"),
-					resource.TestCheckResourceAttrSet(notificationResourceName, "id"),
-					// Check monitor was created with notification_id
-					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-with-notification"),
-					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "1"),
-					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.0", notificationResourceName, "id"),
-				),
-			},
-			// ImportState testing
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-// TestAccMonitorResource_WithTagAndNotification tests creating a monitor with both tag and notification.
-func TestAccMonitorResource_WithTagAndNotification(t *testing.T) {
-	resourceName := "peekaping_monitor.test"
-	tagResourceName := "peekaping_tag.test"
-	notificationResourceName := "peekaping_notification.test"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccMonitorResourceConfig_WithTagAndNotification("test-tag", "test-notification", "test-monitor-with-both"),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Check tag was created
-					resource.TestCheckResourceAttrSet(tagResourceName, "id"),
-					// Check notification was created
-					resource.TestCheckResourceAttrSet(notificationResourceName, "id"),
-					// Check monitor has both
+					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-multiple"),
+					// Verify we now have 1 tag
 					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.0", "peekaping_tag.test1", "id"),
+					// Verify we now have 1 notification
 					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "1"),
-					resource.TestCheckResourceAttrPair(resourceName, "tag_ids.0", tagResourceName, "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.0", notificationResourceName, "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "notification_ids.0", "peekaping_notification.test1", "id"),
 				),
 			},
 		},
 	})
 }
 
-// Configuration helpers
+// TestAccMonitorResource_WithoutTagsAndNotifications tests that monitors can be created
+// without tags and notifications (empty arrays).
+func TestAccMonitorResource_WithoutTagsAndNotifications(t *testing.T) {
+	resourceName := "peekaping_monitor.test"
 
-func testAccMonitorResourceConfig_WithTag(tagName, monitorName string) string {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create monitor without tags and notifications
+			{
+				Config: testAccMonitorResourceConfig_HTTP("test-monitor-no-tags", "https://httpbin.org/status/200"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-no-tags"),
+					resource.TestCheckResourceAttr(resourceName, "type", "http"),
+					// Verify tag_ids and notification_ids are not set (or empty)
+					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "0"),
+				),
+			},
+			// Add tags and notifications
+			{
+				Config: testAccMonitorResourceConfig_WithTagsAndNotifications("test-monitor-no-tags", "https://httpbin.org/status/200"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-no-tags"),
+					// Verify tag_ids is now set
+					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "1"),
+					// Verify notification_ids is now set
+					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "1"),
+				),
+			},
+			// Remove tags and notifications again
+			{
+				Config: testAccMonitorResourceConfig_HTTP("test-monitor-no-tags", "https://httpbin.org/status/200"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", "test-monitor-no-tags"),
+					// Verify tag_ids and notification_ids are cleared
+					resource.TestCheckResourceAttr(resourceName, "tag_ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "notification_ids.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+// Configuration functions for monitors with tags and notifications.
+
+func testAccMonitorResourceConfig_WithTagsAndNotifications(name, url string) string {
 	return fmt.Sprintf(`
 resource "peekaping_tag" "test" {
-  name        = %[1]q
-  color       = "#3B82F6"
+  name        = "test-tag"
+  color       = "#FF0000"
   description = "Test tag for monitor"
 }
 
-resource "peekaping_monitor" "test" {
-  name     = %[2]q
-  type     = "http"
-  config   = jsonencode({
-    url                  = "https://httpbin.org/status/200"
-    method               = "GET"
-    encoding             = "json"
-    accepted_statuscodes = ["2XX"]
-    authMethod           = "none"
+resource "peekaping_notification" "test" {
+  name   = "test-notification"
+  type   = "webhook"
+  active = true
+  config = jsonencode({
+    url    = "https://webhook.example.com/test"
+    method = "POST"
   })
-  interval = 60
-  timeout  = 30
-  active   = true
-  tag_ids  = [peekaping_tag.test.id]
-}
-`, tagName, monitorName)
 }
 
-func testAccMonitorResourceConfig_WithMultipleTags(tagName1, tagName2, monitorName string) string {
-	return fmt.Sprintf(`
-resource "peekaping_tag" "test" {
-  name        = %[1]q
-  color       = "#3B82F6"
-  description = "Test tag 1 for monitor"
-}
-
-resource "peekaping_tag" "test2" {
-  name        = %[2]q
-  color       = "#10B981"
-  description = "Test tag 2 for monitor"
-}
-
-resource "peekaping_monitor" "test" {
-  name     = %[3]q
-  type     = "http"
-  config   = jsonencode({
-    url                  = "https://httpbin.org/status/200"
-    method               = "GET"
-    encoding             = "json"
-    accepted_statuscodes = ["2XX"]
-    authMethod           = "none"
-  })
-  interval = 60
-  timeout  = 30
-  active   = true
-  tag_ids  = [peekaping_tag.test.id, peekaping_tag.test2.id]
-}
-`, tagName1, tagName2, monitorName)
-}
-
-func testAccMonitorResourceConfig_WithoutTags(monitorName string) string {
-	return fmt.Sprintf(`
 resource "peekaping_monitor" "test" {
   name     = %[1]q
   type     = "http"
   config   = jsonencode({
-    url                  = "https://httpbin.org/status/200"
+    url                  = %[2]q
     method               = "GET"
     encoding             = "json"
     accepted_statuscodes = ["2XX"]
     authMethod           = "none"
   })
-  interval = 60
-  timeout  = 30
-  active   = true
-  tag_ids  = []
+  interval          = 60
+  timeout           = 30
+  active            = true
+  tag_ids           = [peekaping_tag.test.id]
+  notification_ids  = [peekaping_notification.test.id]
 }
-`, monitorName)
+`, name, url)
 }
 
-func testAccMonitorResourceConfig_WithNotification(notificationName, monitorName string) string {
+func testAccMonitorResourceConfig_WithMultipleTagsAndNotifications(name, url string) string {
 	return fmt.Sprintf(`
-resource "peekaping_notification" "test" {
-  name = %[1]q
-  type = "webhook"
+resource "peekaping_tag" "test1" {
+  name        = "test-tag-1"
+  color       = "#FF0000"
+  description = "First test tag"
+}
+
+resource "peekaping_tag" "test2" {
+  name        = "test-tag-2"
+  color       = "#00FF00"
+  description = "Second test tag"
+}
+
+resource "peekaping_notification" "test1" {
+  name   = "test-notification-1"
+  type   = "webhook"
+  active = true
   config = jsonencode({
-    url    = "https://httpbin.org/post"
+    url    = "https://webhook.example.com/test1"
+    method = "POST"
+  })
+}
+
+resource "peekaping_notification" "test2" {
+  name   = "test-notification-2"
+  type   = "webhook"
+  active = true
+  config = jsonencode({
+    url    = "https://webhook.example.com/test2"
     method = "POST"
   })
 }
 
 resource "peekaping_monitor" "test" {
-  name     = %[2]q
+  name     = %[1]q
   type     = "http"
   config   = jsonencode({
-    url                  = "https://httpbin.org/status/200"
+    url                  = %[2]q
     method               = "GET"
     encoding             = "json"
     accepted_statuscodes = ["2XX"]
     authMethod           = "none"
   })
-  interval         = 60
-  timeout          = 30
-  active           = true
-  notification_ids = [peekaping_notification.test.id]
+  interval          = 60
+  timeout           = 30
+  active            = true
+  tag_ids           = [peekaping_tag.test1.id, peekaping_tag.test2.id]
+  notification_ids  = [peekaping_notification.test1.id, peekaping_notification.test2.id]
 }
-`, notificationName, monitorName)
+`, name, url)
 }
 
-func testAccMonitorResourceConfig_WithTagAndNotification(tagName, notificationName, monitorName string) string {
+func testAccMonitorResourceConfig_WithSingleTagAndNotification(name, url string) string {
 	return fmt.Sprintf(`
-resource "peekaping_tag" "test" {
-  name        = %[1]q
-  color       = "#3B82F6"
-  description = "Test tag for monitor"
+resource "peekaping_tag" "test1" {
+  name        = "test-tag-1"
+  color       = "#FF0000"
+  description = "First test tag"
 }
 
-resource "peekaping_notification" "test" {
-  name = %[2]q
-  type = "webhook"
+resource "peekaping_tag" "test2" {
+  name        = "test-tag-2"
+  color       = "#00FF00"
+  description = "Second test tag"
+}
+
+resource "peekaping_notification" "test1" {
+  name   = "test-notification-1"
+  type   = "webhook"
+  active = true
   config = jsonencode({
-    url    = "https://httpbin.org/post"
+    url    = "https://webhook.example.com/test1"
+    method = "POST"
+  })
+}
+
+resource "peekaping_notification" "test2" {
+  name   = "test-notification-2"
+  type   = "webhook"
+  active = true
+  config = jsonencode({
+    url    = "https://webhook.example.com/test2"
     method = "POST"
   })
 }
 
 resource "peekaping_monitor" "test" {
-  name     = %[3]q
+  name     = %[1]q
   type     = "http"
   config   = jsonencode({
-    url                  = "https://httpbin.org/status/200"
+    url                  = %[2]q
     method               = "GET"
     encoding             = "json"
     accepted_statuscodes = ["2XX"]
     authMethod           = "none"
   })
-  interval         = 60
-  timeout          = 30
-  active           = true
-  tag_ids          = [peekaping_tag.test.id]
-  notification_ids = [peekaping_notification.test.id]
+  interval          = 60
+  timeout           = 30
+  active            = true
+  tag_ids           = [peekaping_tag.test1.id]
+  notification_ids  = [peekaping_notification.test1.id]
 }
-`, tagName, notificationName, monitorName)
+`, name, url)
 }
