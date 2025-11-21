@@ -526,7 +526,21 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		resp.Diagnostics.AddError("create monitor failed", err.Error())
 		return
 	}
+
+	// Preserve tag_ids and notification_ids from plan before calling setModelFromMonitor
+	// The API may not reliably return these fields
+	preservedTagIDs := plan.TagIDs
+	preservedNotificationIDs := plan.NotificationIDs
+
 	setModelFromMonitor(ctx, &plan, m)
+
+	// Restore preserved values if API didn't return them
+	if m.TagIDs == nil {
+		plan.TagIDs = preservedTagIDs
+	}
+	if m.NotificationIDs == nil {
+		plan.NotificationIDs = preservedNotificationIDs
+	}
 
 	// Preserve the plan's active value to maintain Terraform state consistency
 	// The API may return different defaults than what the plan specifies
@@ -559,11 +573,22 @@ func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 		"active":           m.Active,
 	})
 
-	// Use regular field mapping but don't touch tag_ids and notification_ids
-	// since the API doesn't return these fields and we want to preserve current state
+	// Preserve tag_ids and notification_ids from current state
+	// The API may not reliably return these fields, so we preserve them
+	preservedTagIDs := state.TagIDs
+	preservedNotificationIDs := state.NotificationIDs
+
+	// Use regular field mapping
 	setModelFromMonitor(ctx, &state, m)
 
-	// Don't modify tag_ids and notification_ids - let Terraform preserve them from current state
+	// Restore preserved values if API didn't return them
+	if m.TagIDs == nil {
+		state.TagIDs = preservedTagIDs
+	}
+	if m.NotificationIDs == nil {
+		state.NotificationIDs = preservedNotificationIDs
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
@@ -893,23 +918,31 @@ func setModelFromMonitorWithState(m *monitorResourceModel, from *peekaping.Monit
 		m.UpdatedAt = types.StringValue(from.UpdatedAt)
 	}
 
-	// Handle TagIDs - populate from API response
+	// Handle TagIDs - populate from API response if available, otherwise preserve current state
 	if from.TagIDs != nil {
 		m.TagIDs = make([]types.String, len(from.TagIDs))
 		for i, id := range from.TagIDs {
 			m.TagIDs[i] = types.StringValue(id)
 		}
+	} else if currentState != nil && currentState.TagIDs != nil {
+		// API didn't return tag_ids, preserve from current state
+		m.TagIDs = currentState.TagIDs
 	} else {
+		// No state to preserve from, use empty array
 		m.TagIDs = []types.String{}
 	}
 
-	// Handle NotificationIDs - populate from API response
+	// Handle NotificationIDs - populate from API response if available, otherwise preserve current state
 	if from.NotificationIDs != nil {
 		m.NotificationIDs = make([]types.String, len(from.NotificationIDs))
 		for i, id := range from.NotificationIDs {
 			m.NotificationIDs[i] = types.StringValue(id)
 		}
+	} else if currentState != nil && currentState.NotificationIDs != nil {
+		// API didn't return notification_ids, preserve from current state
+		m.NotificationIDs = currentState.NotificationIDs
 	} else {
+		// No state to preserve from, use empty array
 		m.NotificationIDs = []types.String{}
 	}
 }
