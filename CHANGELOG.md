@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-11-20
+
+### Fixed
+- **State Drift** - Fixed bug where provider ignored `tag_ids` and `notification_ids` from API responses, causing state drift and "inconsistent final plan" errors
+- Updated `setModelFromMonitor` and `setModelFromMonitorWithState` to populate `tag_ids` and `notification_ids` from API responses
+- Marked `tag_ids` and `notification_ids` as `Computed` in schema to allow Terraform to sync values from API
+
 ## [0.2.0] - 2025-11-20
 
 ### Fixed

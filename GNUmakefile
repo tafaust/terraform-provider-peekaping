@@ -14,7 +14,7 @@ endif
 # The name of the binary (default is current directory name)
 TARGET := terraform-provider-peekaping
 # These will be provided to the binary
-VERSION ?= 0.2.0
+VERSION ?= 0.2.1
 COMMIT ?= $(shell git rev-parse --short HEAD)
 BUILD_TIME ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 
@@ -266,7 +266,7 @@ version-bump:
 		exit 1; \
 	fi
 	@echo "Updating GNUmakefile..."
-	@sed -i.bak 's/VERSION ?= .*/VERSION ?= $(NEW_VERSION)/' GNUmakefile
+	@sed -i.bak 's/VERSION ?= 0.2.1
 	@echo "Updating main.go..."
 	@sed -i.bak 's/version string = .*/version string = "$(NEW_VERSION)"/' main.go
 	@echo "Updating terraform-registry-manifest.json..."
