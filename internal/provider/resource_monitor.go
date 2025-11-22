@@ -992,10 +992,6 @@ func setModelFromMonitorWithState(m *monitorResourceModel, from *peekaping.Monit
 	m.Status = types.Int64Value(apiStatus)
 
 	// Timestamp fields - use state as ground truth when API returns invalid values
-	tflog.Debug(context.Background(), "Setting timestamps from API response in setModelFromMonitorWithState", map[string]interface{}{
-		"created_at": from.CreatedAt,
-		"updated_at": from.UpdatedAt,
-	})
 
 	// Handle created_at - use state as ground truth when API returns invalid values
 	if (from.CreatedAt == "" || from.CreatedAt == "0001-01-01T00:00:00Z") && currentState != nil && !currentState.CreatedAt.IsNull() {
