@@ -646,11 +646,18 @@ func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 		"active":           m.Active,
 	})
 
-	// Use regular field mapping but don't touch tag_ids and notification_ids
-	// since the API doesn't return these fields and we want to preserve current state
+	// Save current tag_ids and notification_ids before updating from API
+	currentTagIDs := state.TagIDs
+	currentNotificationIDs := state.NotificationIDs
+
+	// Update state from API response
 	setModelFromMonitor(ctx, &state, m)
 
-	// Don't modify tag_ids and notification_ids - let Terraform preserve them from current state
+	// Preserve tag_ids and notification_ids from state as the API may return them in a different order
+	// These are managed by plan modifiers and should not be overwritten during refresh
+	state.TagIDs = currentTagIDs
+	state.NotificationIDs = currentNotificationIDs
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
@@ -776,7 +783,7 @@ func (r *MonitorResource) ImportState(ctx context.Context, req resource.ImportSt
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
-// listToStrSlice converts types.List to []string, skipping null/unknown elements
+// listToStrSlice converts types.List to []string, skipping null/unknown elements.
 func listToStrSlice(list types.List) []string {
 	if list.IsNull() || list.IsUnknown() {
 		return []string{}
@@ -791,7 +798,7 @@ func listToStrSlice(list types.List) []string {
 	return result
 }
 
-// listToStrSliceOrFallback converts types.List to []string, but uses fallback if list has null/unknown elements
+// listToStrSliceOrFallback converts types.List to []string, but uses fallback if list has null/unknown elements.
 func listToStrSliceOrFallback(list types.List, fallback types.List) []string {
 	if list.IsNull() || list.IsUnknown() {
 		return listToStrSlice(fallback)
@@ -813,9 +820,9 @@ func listToStrSliceOrFallback(list types.List, fallback types.List) []string {
 	return listToStrSlice(list)
 }
 
-// strSliceToList converts []string to types.List
+// strSliceToList converts []string to types.List.
 func strSliceToList(vals []string) types.List {
-	if vals == nil || len(vals) == 0 {
+	if len(vals) == 0 {
 		return types.ListValueMust(types.StringType, []attr.Value{})
 	}
 
