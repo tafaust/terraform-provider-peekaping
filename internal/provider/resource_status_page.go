@@ -652,12 +652,17 @@ func setModelFromStatusPageWithState(m *statusPageResourceModel, from *peekaping
 	m.CreatedAt = types.StringValue(from.CreatedAt)
 	m.UpdatedAt = types.StringValue(from.UpdatedAt)
 
+	// Handle Domains - preserve state when API doesn't return them
+	// The API may not return domains in its response, so we preserve the user's configured value
 	if len(from.Domains) > 0 {
 		domains := make([]types.String, 0, len(from.Domains))
 		for _, domain := range from.Domains {
 			domains = append(domains, types.StringValue(domain))
 		}
 		m.Domains = domains
+	} else if currentState != nil && len(currentState.Domains) > 0 {
+		// API didn't return domains, preserve state
+		m.Domains = currentState.Domains
 	} else {
 		m.Domains = nil
 	}
