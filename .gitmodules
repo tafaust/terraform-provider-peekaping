@@ -1,0 +1,3 @@
+[submodule "peekaping-upstream"]
+	path = peekaping-upstream
+	url = ssh://git@github.com/0xfurai/peekaping.git
