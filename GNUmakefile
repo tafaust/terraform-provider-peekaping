@@ -73,6 +73,54 @@ test-native: asdf-install
 	@cd tests && terraform init
 	@cd tests && terraform test
 
+# Run Terraform native tests with Docker Compose (starts API server automatically)
+.PHONY: test-native-docker
+test-native-docker: asdf-install
+	@echo "==> Starting Peekaping API server with Docker Compose..."
+	@docker compose -f docker-compose.test.yml up -d
+	@echo "==> Waiting for API server to be ready..."
+	@timeout=120; \
+	while [ $$timeout -gt 0 ]; do \
+		if curl -s -f http://localhost:8034/api/v1/health > /dev/null 2>&1; then \
+			echo "API server is ready!"; \
+			break; \
+		fi; \
+		echo "Waiting for API server... ($$timeout seconds remaining)"; \
+		sleep 2; \
+		timeout=$$((timeout - 2)); \
+	done; \
+	if [ $$timeout -le 0 ]; then \
+		echo "Error: API server did not become ready in time"; \
+		docker compose -f docker-compose.test.yml logs peekaping; \
+		docker compose -f docker-compose.test.yml down; \
+		exit 1; \
+	fi
+	@echo "==> Bootstrapping test user and API key..."
+	@./scripts/bootstrap-test-user.sh || (echo "Failed to bootstrap test user"; docker compose -f docker-compose.test.yml down; exit 1)
+	@echo "==> Loading test credentials..."
+	@if [ -f .test-env ]; then \
+		export $$(cat .test-env | xargs); \
+		echo "==> Running Terraform native tests..."; \
+		cd tests && terraform init && terraform test; \
+		EXIT_CODE=$$?; \
+		echo "==> Stopping Docker Compose services..."; \
+		cd .. && docker compose -f docker-compose.test.yml down; \
+		rm -f .test-env; \
+		exit $$EXIT_CODE; \
+	else \
+		echo "Error: .test-env file not created"; \
+		docker compose -f docker-compose.test.yml down; \
+		exit 1; \
+	fi
+
+# Stop test Docker Compose services
+.PHONY: test-docker-down
+test-docker-down:
+	@echo "==> Stopping test Docker Compose services..."
+	@docker compose -f docker-compose.test.yml down
+	@echo "==> Cleaning up test data..."
+	@rm -rf .test-data
+
 # Run all tests
 .PHONY: test-all
 test-all: test testacc test-native
@@ -296,6 +344,8 @@ help:
 	@echo "  test            - Run unit tests"
 	@echo "  testacc         - Run acceptance tests (requires PEEKAPING_API_URL and PEEKAPING_API_TOKEN)"
 	@echo "  test-native     - Run Terraform native tests"
+	@echo "  test-native-docker - Run Terraform native tests with Docker Compose (starts API server)"
+	@echo "  test-docker-down - Stop test Docker Compose services"
 	@echo "  test-all        - Run all tests"
 	@echo "  testrace        - Run tests with race detection"
 	@echo "  testcover       - Run tests with coverage"

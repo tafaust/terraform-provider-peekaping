@@ -37,6 +37,10 @@ Thumbs.db
 .env
 .terraformrc
 
+# Test data
+.test-data/
+.test-env
+
 .trunk
 .specstory
 .cursor

@@ -1,0 +1,33 @@
+# Docker Compose configuration for running tests
+# This uses the SQLite bundle from peekaping-upstream for simplicity
+
+services:
+  peekaping:
+    build:
+      context: ./peekaping-upstream
+      dockerfile: Dockerfile.bundle.sqlite
+    restart: unless-stopped
+    ports:
+      - "8034:8383" # Map to the expected test port
+    environment:
+      - DB_TYPE=sqlite
+      - DB_NAME=/app/data/peekaping.db
+    volumes:
+      # Use a test-specific data directory
+      - ./.test-data/sqlite:/app/data
+      - ./.test-data/logs:/var/log/supervisor
+    container_name: peekaping-test
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8383/api/v1/health",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
