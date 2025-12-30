@@ -10,10 +10,12 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -25,6 +27,69 @@ import (
 
 var _ resource.Resource = &MonitorResource{}
 var _ resource.ResourceWithImportState = &MonitorResource{}
+
+// preserveUnknownElementsModifier preserves unknown values in list elements during planning.
+// This prevents "inconsistent final plan" errors when list elements reference data sources
+// with depends_on or other unknown values at plan time.
+type preserveUnknownElementsModifier struct{}
+
+func (m preserveUnknownElementsModifier) Description(_ context.Context) string {
+	return "Preserves unknown elements in lists to prevent inconsistent plan errors"
+}
+
+func (m preserveUnknownElementsModifier) MarkdownDescription(_ context.Context) string {
+	return "Preserves unknown elements in lists to prevent inconsistent plan errors when elements are data source references"
+}
+
+func (m preserveUnknownElementsModifier) PlanModifyList(ctx context.Context, req planmodifier.ListRequest, resp *planmodifier.ListResponse) {
+	// If the config value is null or unknown, use state if available
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		if !req.StateValue.IsNull() && !req.StateValue.IsUnknown() {
+			resp.PlanValue = req.StateValue
+		}
+		return
+	}
+
+	// If the entire planned value is null or unknown, nothing to do
+	if req.PlanValue.IsNull() || req.PlanValue.IsUnknown() {
+		return
+	}
+
+	// For updates (when state exists), only preserve state if:
+	// 1. Config has null elements (from deferred data sources)
+	// 2. AND the list lengths match (to prevent "new elements appeared" errors)
+	if !req.StateValue.IsNull() && !req.StateValue.IsUnknown() {
+		configElements := req.ConfigValue.Elements()
+		stateElements := req.StateValue.Elements()
+
+		// Only proceed if list lengths match
+		if len(configElements) != len(stateElements) {
+			tflog.Debug(ctx, "Config and state list lengths differ, not preserving state", map[string]interface{}{
+				"path":       req.Path.String(),
+				"config_len": len(configElements),
+				"state_len":  len(stateElements),
+			})
+			return
+		}
+
+		// Check if config has null elements (from deferred data sources)
+		hasNullElements := false
+		for _, elem := range configElements {
+			if str, ok := elem.(types.String); ok && str.IsNull() {
+				hasNullElements = true
+				break
+			}
+		}
+
+		if hasNullElements {
+			tflog.Debug(ctx, "Found null elements in config with matching length, using state value for plan", map[string]interface{}{
+				"path": req.Path.String(),
+			})
+			resp.PlanValue = req.StateValue
+			return
+		}
+	}
+}
 
 // monitorTypeValidator validates that the monitor type is supported.
 type monitorTypeValidator struct{}
@@ -291,8 +356,8 @@ type monitorResourceModel struct {
 	ResendInterval  types.Int64          `tfsdk:"resend_interval"`
 	ProxyID         types.String         `tfsdk:"proxy_id"`
 	PushToken       types.String         `tfsdk:"push_token"`
-	NotificationIDs []types.String       `tfsdk:"notification_ids"`
-	TagIDs          []types.String       `tfsdk:"tag_ids"`
+	NotificationIDs types.List           `tfsdk:"notification_ids"`
+	TagIDs          types.List           `tfsdk:"tag_ids"`
 	Status          types.Int64          `tfsdk:"status"`
 	CreatedAt       types.String         `tfsdk:"created_at"`
 	UpdatedAt       types.String         `tfsdk:"updated_at"`
@@ -409,12 +474,20 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed:    true,
 				ElementType: types.StringType,
 				Description: "List of notification channel IDs",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+					preserveUnknownElementsModifier{},
+				},
 			},
 			"tag_ids": schema.ListAttribute{
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
 				Description: "List of tag IDs",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+					preserveUnknownElementsModifier{},
+				},
 			},
 			"status": schema.Int64Attribute{
 				Computed:    true,
@@ -457,7 +530,11 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	notificationIDs := toStrSlice(plan.NotificationIDs)
+	// Save the original tag_ids and notification_ids to preserve them after API response
+	originalTagIDs := plan.TagIDs
+	originalNotificationIDs := plan.NotificationIDs
+
+	notificationIDs := listToStrSlice(plan.NotificationIDs)
 	if notificationIDs == nil {
 		notificationIDs = []string{}
 	}
@@ -467,7 +544,7 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		"name":    plan.Name.ValueString(),
 		"type":    plan.Type.ValueString(),
 		"config":  plan.Config.ValueString(),
-		"tag_ids": toStrSlice(plan.TagIDs),
+		"tag_ids": listToStrSlice(plan.TagIDs),
 	})
 
 	// Handle default values
@@ -511,8 +588,8 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		RetryInterval:   retryInterval,
 		ResendInterval:  resendInterval,
 		Active:          active,
-		NotificationIDs: notificationIDs,         // Always send, even if empty (API requires it)
-		TagIDs:          toStrSlice(plan.TagIDs), // Always send, even if empty (API requires it)
+		NotificationIDs: notificationIDs,             // Always send, even if empty (API requires it)
+		TagIDs:          listToStrSlice(plan.TagIDs), // Always send, even if empty (API requires it)
 	}
 	if !plan.ProxyID.IsNull() {
 		in.ProxyID = plan.ProxyID.ValueString()
@@ -526,12 +603,22 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		resp.Diagnostics.AddError("create monitor failed", err.Error())
 		return
 	}
+
 	setModelFromMonitor(ctx, &plan, m)
 
 	// Preserve the plan's active value to maintain Terraform state consistency
 	// The API may return different defaults than what the plan specifies
 	if !plan.Active.IsNull() {
 		plan.Active = types.BoolValue(active)
+	}
+
+	// Preserve the originally planned tag_ids and notification_ids to prevent "inconsistent final plan" errors
+	// when they contain null/unknown values from deferred data sources
+	if !originalTagIDs.IsNull() && !originalTagIDs.IsUnknown() {
+		plan.TagIDs = originalTagIDs
+	}
+	if !originalNotificationIDs.IsNull() && !originalNotificationIDs.IsUnknown() {
+		plan.NotificationIDs = originalNotificationIDs
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -559,11 +646,18 @@ func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 		"active":           m.Active,
 	})
 
-	// Use regular field mapping but don't touch tag_ids and notification_ids
-	// since the API doesn't return these fields and we want to preserve current state
+	// Save current tag_ids and notification_ids before updating from API
+	currentTagIDs := state.TagIDs
+	currentNotificationIDs := state.NotificationIDs
+
+	// Update state from API response
 	setModelFromMonitor(ctx, &state, m)
 
-	// Don't modify tag_ids and notification_ids - let Terraform preserve them from current state
+	// Preserve tag_ids and notification_ids from state as the API may return them in a different order
+	// These are managed by plan modifiers and should not be overwritten during refresh
+	state.TagIDs = currentTagIDs
+	state.NotificationIDs = currentNotificationIDs
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
@@ -574,6 +668,10 @@ func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	// Save the original tag_ids and notification_ids to preserve them after API response
+	originalTagIDs := plan.TagIDs
+	originalNotificationIDs := plan.NotificationIDs
+
 	// Get the current state to get the ID
 	var state monitorResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -582,8 +680,9 @@ func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	upd := peekaping.MonitorUpdate{
-		NotificationIDs: toStrSlice(plan.NotificationIDs), // Always send, even if empty (API requires it)
-		TagIDs:          toStrSlice(plan.TagIDs),          // Always send, even if empty (API requires it)
+		// Use state values as fallback if plan has null/unknown values (from deferred data sources)
+		NotificationIDs: listToStrSliceOrFallback(plan.NotificationIDs, state.NotificationIDs),
+		TagIDs:          listToStrSliceOrFallback(plan.TagIDs, state.TagIDs),
 	}
 	if !plan.Name.IsNull() {
 		v := plan.Name.ValueString()
@@ -652,6 +751,16 @@ func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest
 	// Note: We don't set CreatedAt/UpdatedAt here as they can change during updates
 
 	setModelFromMonitorWithState(&plan, fullMonitor, &state)
+
+	// Preserve the originally planned tag_ids and notification_ids to prevent "inconsistent final plan" errors
+	// when they contain null/unknown values from deferred data sources
+	if !originalTagIDs.IsNull() && !originalTagIDs.IsUnknown() {
+		plan.TagIDs = originalTagIDs
+	}
+	if !originalNotificationIDs.IsNull() && !originalNotificationIDs.IsUnknown() {
+		plan.NotificationIDs = originalNotificationIDs
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
@@ -674,14 +783,54 @@ func (r *MonitorResource) ImportState(ctx context.Context, req resource.ImportSt
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
-func toStrSlice(xs []types.String) []string {
-	out := make([]string, 0, len(xs))
-	for _, s := range xs {
-		if !s.IsNull() {
-			out = append(out, s.ValueString())
+// listToStrSlice converts types.List to []string, skipping null/unknown elements.
+func listToStrSlice(list types.List) []string {
+	if list.IsNull() || list.IsUnknown() {
+		return []string{}
+	}
+
+	var result []string
+	for _, elem := range list.Elements() {
+		if str, ok := elem.(types.String); ok && !str.IsNull() && !str.IsUnknown() {
+			result = append(result, str.ValueString())
 		}
 	}
-	return out
+	return result
+}
+
+// listToStrSliceOrFallback converts types.List to []string, but uses fallback if list has null/unknown elements.
+func listToStrSliceOrFallback(list types.List, fallback types.List) []string {
+	if list.IsNull() || list.IsUnknown() {
+		return listToStrSlice(fallback)
+	}
+
+	// Check if list contains any null or unknown values
+	hasNullOrUnknown := false
+	for _, elem := range list.Elements() {
+		if str, ok := elem.(types.String); ok && (str.IsNull() || str.IsUnknown()) {
+			hasNullOrUnknown = true
+			break
+		}
+	}
+
+	if hasNullOrUnknown {
+		return listToStrSlice(fallback)
+	}
+
+	return listToStrSlice(list)
+}
+
+// strSliceToList converts []string to types.List.
+func strSliceToList(vals []string) types.List {
+	if len(vals) == 0 {
+		return types.ListValueMust(types.StringType, []attr.Value{})
+	}
+
+	elements := make([]attr.Value, len(vals))
+	for i, v := range vals {
+		elements[i] = types.StringValue(v)
+	}
+	return types.ListValueMust(types.StringType, elements)
 }
 
 func setModelFromMonitor(ctx context.Context, m *monitorResourceModel, from *peekaping.Monitor) {
@@ -771,24 +920,10 @@ func setModelFromMonitor(ctx context.Context, m *monitorResourceModel, from *pee
 	}
 
 	// Handle TagIDs - populate from API response
-	if from.TagIDs != nil {
-		m.TagIDs = make([]types.String, len(from.TagIDs))
-		for i, id := range from.TagIDs {
-			m.TagIDs[i] = types.StringValue(id)
-		}
-	} else {
-		m.TagIDs = []types.String{}
-	}
+	m.TagIDs = strSliceToList(from.TagIDs)
 
 	// Handle NotificationIDs - populate from API response
-	if from.NotificationIDs != nil {
-		m.NotificationIDs = make([]types.String, len(from.NotificationIDs))
-		for i, id := range from.NotificationIDs {
-			m.NotificationIDs[i] = types.StringValue(id)
-		}
-	} else {
-		m.NotificationIDs = []types.String{}
-	}
+	m.NotificationIDs = strSliceToList(from.NotificationIDs)
 }
 
 // setModelFromMonitorWithState handles field mapping with state comparison to resolve API inconsistencies.
@@ -864,10 +999,6 @@ func setModelFromMonitorWithState(m *monitorResourceModel, from *peekaping.Monit
 	m.Status = types.Int64Value(apiStatus)
 
 	// Timestamp fields - use state as ground truth when API returns invalid values
-	tflog.Debug(context.Background(), "Setting timestamps from API response in setModelFromMonitorWithState", map[string]interface{}{
-		"created_at": from.CreatedAt,
-		"updated_at": from.UpdatedAt,
-	})
 
 	// Handle created_at - use state as ground truth when API returns invalid values
 	if (from.CreatedAt == "" || from.CreatedAt == "0001-01-01T00:00:00Z") && currentState != nil && !currentState.CreatedAt.IsNull() {
@@ -894,22 +1025,8 @@ func setModelFromMonitorWithState(m *monitorResourceModel, from *peekaping.Monit
 	}
 
 	// Handle TagIDs - populate from API response
-	if from.TagIDs != nil {
-		m.TagIDs = make([]types.String, len(from.TagIDs))
-		for i, id := range from.TagIDs {
-			m.TagIDs[i] = types.StringValue(id)
-		}
-	} else {
-		m.TagIDs = []types.String{}
-	}
+	m.TagIDs = strSliceToList(from.TagIDs)
 
 	// Handle NotificationIDs - populate from API response
-	if from.NotificationIDs != nil {
-		m.NotificationIDs = make([]types.String, len(from.NotificationIDs))
-		for i, id := range from.NotificationIDs {
-			m.NotificationIDs[i] = types.StringValue(id)
-		}
-	} else {
-		m.NotificationIDs = []types.String{}
-	}
+	m.NotificationIDs = strSliceToList(from.NotificationIDs)
 }
