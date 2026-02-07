@@ -29,9 +29,12 @@ resource "peekaping_monitor" "http" {
     authMethod           = "none"
     check_cert_expiry    = true
   })
-  interval = var.monitor_interval != null ? var.monitor_interval : 60
-  timeout  = var.monitor_timeout != null ? var.monitor_timeout : 30
-  active   = true
+  interval        = var.monitor_interval != null ? var.monitor_interval : 60
+  timeout         = var.monitor_timeout != null ? var.monitor_timeout : 30
+  max_retries     = 3
+  retry_interval  = 60
+  resend_interval = 10
+  active          = true
 }
 
 # TCP Monitor
@@ -44,9 +47,12 @@ resource "peekaping_monitor" "tcp" {
     host = var.monitor_host
     port = var.monitor_port
   })
-  interval = 60
-  timeout  = 30
-  active   = true
+  interval        = 60
+  timeout         = 30
+  max_retries     = 3
+  retry_interval  = 60
+  resend_interval = 10
+  active          = true
 }
 
 # Ping Monitor
@@ -59,9 +65,12 @@ resource "peekaping_monitor" "ping" {
     host        = var.monitor_host
     packet_size = var.packet_size
   })
-  interval = 60
-  timeout  = 30
-  active   = true
+  interval        = 60
+  timeout         = 30
+  max_retries     = 3
+  retry_interval  = 60
+  resend_interval = 10
+  active          = true
 }
 
 # DNS Monitor
@@ -76,9 +85,12 @@ resource "peekaping_monitor" "dns" {
     port            = var.resolver_port
     resolve_type    = var.resolve_type
   })
-  interval = 60
-  timeout  = 30
-  active   = true
+  interval        = 60
+  timeout         = 30
+  max_retries     = 3
+  retry_interval  = 60
+  resend_interval = 10
+  active          = true
 }
 
 # MySQL Monitor
@@ -91,9 +103,12 @@ resource "peekaping_monitor" "mysql" {
     connection_string = var.connection_string
     query             = "SELECT 1"
   })
-  interval = 60
-  timeout  = 30
-  active   = true
+  interval        = 60
+  timeout         = 30
+  max_retries     = 3
+  retry_interval  = 60
+  resend_interval = 10
+  active          = true
 }
 
 # Redis Monitor
@@ -106,9 +121,12 @@ resource "peekaping_monitor" "redis" {
     databaseConnectionString = var.connection_string
     ignoreTls                = false
   })
-  interval = 60
-  timeout  = 30
-  active   = true
+  interval        = 60
+  timeout         = 30
+  max_retries     = 3
+  retry_interval  = 60
+  resend_interval = 10
+  active          = true
 }
 
 # Outputs for testing
