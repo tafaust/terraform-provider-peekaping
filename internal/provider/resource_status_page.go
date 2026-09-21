@@ -601,6 +601,11 @@ func (r *StatusPageResource) Delete(ctx context.Context, req resource.DeleteRequ
 func (r *StatusPageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	var state statusPageResourceModel
 	state.ID = types.StringValue(req.ID)
+	// MonitorIDs is a types.List, whose Go zero value carries no element type.
+	// Setting state with it produces "Value Conversion Error ... List[!!! MISSING
+	// TYPE !!!]" and the import fails outright. Seed a correctly-typed null list;
+	// Read then populates it. (Domains is []types.String, so it is unaffected.)
+	state.MonitorIDs = types.ListNull(types.StringType)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
